@@ -1,0 +1,14 @@
+import { useQuery } from "@tanstack/react-query";
+import axiosClient from "../api/axiosClient";
+
+export const useVendorItems = (page = 1, search = "") => {
+  return useQuery({
+    queryKey: ["vendoritems", page, search],
+    queryFn: async () => {
+      const res = await axiosClient.get(
+        `vendoritems/?page=${page}&search=${encodeURIComponent(search)}`
+      );
+      return res.data; // this is an object { count, next, previous, results: [...] }
+    },
+  });
+};
