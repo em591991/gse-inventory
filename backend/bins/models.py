@@ -1,6 +1,6 @@
 # bins/models.py
 from django.db import models
-from locations.models import Location
+from inventory.models import Location
 
 class Bin(models.Model):
     bin_code = models.CharField(max_length=64)

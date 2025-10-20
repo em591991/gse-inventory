@@ -1,5 +1,6 @@
 from django.db import models
 from vendors.models import Vendor
+import uuid
 
 
 
@@ -18,14 +19,16 @@ class UnitOfMeasure(models.Model):
 
 
 # ==============================
-#  ITEM MASTER
+#  ITEM MASTER (UPDATED)
 # ==============================
 class Item(models.Model):
-    name = models.CharField(max_length=100)
+    item_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    item_name = models.CharField(max_length=255)
+    g_code = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
-    sku = models.CharField(max_length=50, blank=True, null=True)
-    category = models.CharField(max_length=100, blank=True, null=True)
-    manufacturer = models.CharField(max_length=100, blank=True, null=True)
+    category = models.CharField(max_length=500, blank=True, null=True)
+    manufacturer = models.CharField(max_length=500, blank=True, null=True)
+    manufacturer_part_no = models.CharField(max_length=500, blank=True, null=True)
 
     default_uom = models.ForeignKey(
         UnitOfMeasure,
@@ -35,16 +38,19 @@ class Item(models.Model):
         related_name="default_items"
     )
 
-    # Many-to-Many relationship with Vendor through VendorItem
     vendors = models.ManyToManyField(
         'vendors.Vendor',
-        through='vendoritems.VendorItem',   # 👈 Full app label prevents E331/E340
+        through='vendoritems.VendorItem',
         related_name='items'
     )
 
-    def __str__(self):
-        return self.name
+    class Meta:
+        indexes = [
+            models.Index(fields=['g_code'], name='idx_item_gcode'),
+        ]
 
+    def __str__(self):
+        return f"{self.g_code} - {self.item_name}"
 
 # ==============================
 #  VENDOR-ITEM RELATIONSHIP
