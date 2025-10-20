@@ -89,3 +89,31 @@ Use this to verify each model matches the ERD exactly.
 - [ ] = Not yet implemented
 
 *Last Updated: January 20, 2025*
+
+
+- [X] Shipment (shipments app)
+- [X] ShipmentLine (shipments app)
+- [X] EquipmentModel (equipment app)
+- [X] Equipment (equipment app)
+- [X] EquipmentAssignment (equipment app)
+- [X] EquipmentMaintenance (equipment app)
+- [X] EquipmentCalibrationSchedule (equipment app)
+- [X] EquipmentProcurement (equipment app)
+- [X] VehicleModel (vehicles app)
+- [X] Vehicle (vehicles app)
+- [X] VehicleAssignment (vehicles app)
+- [X] VehicleMaintenance (vehicles app)
+- [X] VehicleServiceSchedule (vehicles app)
+- [X] VehicleProcurement (vehicles app)
+- [X] User (users app)
+- [X] OAuthIdentity (users app)
+- [X] Role (users app)
+- [X] Permission (users app)
+- [X] RolePermission (users app)
+- [X] UserRole (users app)
+- [X] UserLocationAccess (users app)
+- [X] UserDepartmentAccess (users app)
+- [X] AuditLog (audit app)
+- [X] ToolMaintenance (tools app)
+- [X] ToolCalibrationSchedule (tools app)
+- [X] ToolProcurement (tools app)
