@@ -26,8 +26,12 @@ function Vendors() {
         const response = await fetch("http://127.0.0.1:8000/api/vendors/");
         if (!response.ok) throw new Error(`Failed to fetch vendors: ${response.status}`);
         const data = await response.json();
-        setVendors(data);
-        setFiltered(data);
+        
+        // ✅ FIX: Handle paginated response (with 'results' key) or direct array
+        const vendorList = Array.isArray(data) ? data : (data.results || []);
+        
+        setVendors(vendorList);
+        setFiltered(vendorList);
       } catch (err) {
         setError(err.message);
       } finally {
