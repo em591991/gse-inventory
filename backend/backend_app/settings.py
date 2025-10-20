@@ -56,6 +56,13 @@ INSTALLED_APPS = [
     'locations',
     'bins',
     'manufacturers',
+    'shipments',        
+    'equipment',        
+    'vehicles',         
+    'users',            
+    'audit',
+     
+           
     
 ]
 
