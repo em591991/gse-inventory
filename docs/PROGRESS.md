@@ -1,5 +1,14 @@
 # Implementation Progress
 
+### October 21, 2025 - Infrastructure Migration
+- ✅ Migrated project from OneDrive to local development folder (`C:\Dev\gse-inventory`)
+- ✅ Fixed Vite/Node.js file access issues caused by OneDrive sync
+- ✅ Established Git-based workflow for multi-computer development
+- ✅ Verified .gitignore configuration (backend & frontend)
+- ✅ Removed backup files from Git tracking
+- ✅ Documented migration process for future reference
+- ✅ Both backend and frontend servers running successfully
+
 ## ✅ Phase 1: Core Inventory (COMPLETE)
 - [x] UnitOfMeasure model
 - [x] Item model with g_code and UUID
