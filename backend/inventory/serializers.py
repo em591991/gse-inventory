@@ -5,8 +5,15 @@ from .models import (
     UnitOfMeasure,
     InventoryMovement,
     ItemLocationPolicy,
+    Location,
 )
 from vendors.serializers import VendorSerializer
+
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ['location_id', 'name', 'type', 'is_active']
+        read_only_fields = ['location_id']
 
 
 

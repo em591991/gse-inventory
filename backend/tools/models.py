@@ -21,7 +21,7 @@ class Tool(models.Model):
     purchased_at = models.DateTimeField(null=True)
     cost = models.DecimalField(max_digits=12, decimal_places=2)
     notes = models.TextField()
-    current_location = models.ForeignKey('locations.Location', null=True, blank=True, on_delete=models.SET_NULL)
+    current_location = models.ForeignKey('locations.Location', null=True, blank=True, db_column='current_location_id',on_delete=models.SET_NULL)
     current_bin = models.ForeignKey('bins.Bin', null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):

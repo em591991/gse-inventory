@@ -60,19 +60,37 @@ class Item(models.Model):
 #  LOCATIONS & BINS
 # ==============================
 
+
+
 class Location(models.Model):
+    """
+    ERD Table: locations
+    Physical locations where inventory, vehicles, tools, and equipment are stored
+    """
+    # Primary key must be location_id (UUID) per ERD
+    location_id = models.UUIDField(
+        primary_key=True, 
+        default=uuid.uuid4, 
+        editable=False
+    )
+    
+    # ERD: name varchar(120) [not null]
+    name = models.CharField(max_length=120)
+    
+    # ERD: type varchar(120) [not null]
     LOCATION_TYPES = [
         ("WAREHOUSE", "Warehouse"),
         ("TRUCK", "Truck"),
         ("JOB", "Jobsite"),
         ("STORAGE", "Storage"),
     ]
-
-    name = models.CharField(max_length=120)
-    type = models.CharField(max_length=50, choices=LOCATION_TYPES)
+    type = models.CharField(max_length=120, choices=LOCATION_TYPES)
+    
+    # ERD: is_active boolean [not null]
     is_active = models.BooleanField(default=True)
 
     class Meta:
+        db_table = 'locations'
         indexes = [
             models.Index(fields=["name", "type"], name="idx_locations_name_type"),
         ]
@@ -82,12 +100,20 @@ class Location(models.Model):
 
 
 class Bin(models.Model):
+    """ERD Table: bins"""
+    bin_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    
     location = models.ForeignKey(
-        Location, on_delete=models.CASCADE, related_name="bins"
+        Location,
+        on_delete=models.CASCADE,
+        related_name="bins",
+        db_column='location_id'  # ← Add this!
     )
+    
     bin_code = models.CharField(max_length=64)
 
     class Meta:
+        db_table = 'bins'
         unique_together = ("location", "bin_code")
         indexes = [
             models.Index(fields=["location", "bin_code"], name="uq_bins_per_location"),
@@ -96,10 +122,9 @@ class Bin(models.Model):
     def __str__(self):
         return f"{self.location.name} – {self.bin_code}"
 
-
 class ItemDefaultBin(models.Model):
     item = models.ForeignKey("inventory.Item", on_delete=models.CASCADE)
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE,db_column='location_id')
     bin = models.ForeignKey(Bin, on_delete=models.CASCADE)
 
     class Meta:
@@ -128,6 +153,7 @@ class InventoryMovement(models.Model):
         null=True,
         blank=True,
         related_name="outgoing_movements",
+        db_column='from_location_id'
     )
     from_bin = models.ForeignKey(
         "inventory.Bin",
@@ -142,6 +168,7 @@ class InventoryMovement(models.Model):
         null=True,
         blank=True,
         related_name="incoming_movements",
+        db_column='to_location_id'
     )
     to_bin = models.ForeignKey(
         "inventory.Bin",
@@ -175,7 +202,7 @@ class InventoryMovement(models.Model):
 
 class ItemLocationPolicy(models.Model):
     item = models.ForeignKey("inventory.Item", on_delete=models.CASCADE)
-    location = models.ForeignKey("inventory.Location", on_delete=models.CASCADE)
+    location = models.ForeignKey("inventory.Location", on_delete=models.CASCADE,db_column='location_id')
     min_qty = models.DecimalField(max_digits=14, decimal_places=4, null=True, blank=True)
     max_qty = models.DecimalField(max_digits=14, decimal_places=4, null=True, blank=True)
     reorder_qty = models.DecimalField(max_digits=14, decimal_places=4, null=True, blank=True)

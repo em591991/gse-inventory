@@ -32,6 +32,19 @@ export default function Vehicles() {
     },
   });
 
+  //fetch locations
+  const { data: locationsData } = useQuery({
+  queryKey: ["locations"],
+  queryFn: async () => {
+    const response = await axiosClient.get("/inventory/locations/");
+    return response.data;
+  },
+  });
+
+const locationsList = Array.isArray(locationsData) 
+  ? locationsData 
+  : (locationsData?.results || []);
+
   // Create/Update vehicle mutation
   const saveMutation = useMutation({
     mutationFn: async (data) => {
@@ -206,7 +219,7 @@ export default function Vehicles() {
                 <label className="block text-sm font-medium mb-1">License Plate</label>
                 <input
                   type="text"
-                  name="license_plate"
+                  name="plate_no"
                   defaultValue={editingVehicle?.license_plate || ""}
                   className="w-full px-3 py-2 border rounded"
                 />
@@ -229,10 +242,11 @@ export default function Vehicles() {
                   defaultValue={editingVehicle?.status || "AVAILABLE"}
                   className="w-full px-3 py-2 border rounded"
                 >
-                  <option value="AVAILABLE">Available</option>
-                  <option value="IN_USE">In Use</option>
-                  <option value="MAINTENANCE">Maintenance</option>
-                  <option value="RETIRED">Retired</option>
+                   <option value="AVAILABLE">Available</option>
+                   <option value="IN_SERVICE">In Service</option>
+                   <option value="MAINTENANCE">Maintenance</option>
+                   <option value="OUT_OF_SERVICE">Out of Service</option>
+                   <option value="RETIRED">Retired</option>
                 </select>
               </div>
               <div>
@@ -264,6 +278,24 @@ export default function Vehicles() {
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Location *</label>
+                <select
+                  name="location"
+                  required
+                  defaultValue={editingVehicle?.location?.location_id || ""}
+                  className="w-full px-3 py-2 border rounded"
+                >
+                  <option value="">Select a location</option>
+                  {locationsList.map((loc) => (
+                    <option key={loc.location_id} value={loc.location_id}>
+                      {loc.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">Notes</label>
                 <textarea
@@ -297,112 +329,52 @@ export default function Vehicles() {
         </div>
       )}
 
-      {/* ✨ NEW: Vehicle Model Form Modal */}
       {showModelForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 my-8">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-2xl font-bold mb-4">
-              {editingModel ? "Edit Vehicle Model" : "New Vehicle Model"}
+              {editingModel ? "Edit Model" : "New Model"}
             </h2>
             <form onSubmit={handleModelSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Year *</label>
-                  <input
-                    type="number"
-                    name="year"
-                    required
-                    min="1900"
-                    max="2099"
-                    defaultValue={editingModel?.year || new Date().getFullYear()}
-                    placeholder="2024"
-                    className="w-full px-3 py-2 border rounded"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Make *</label>
-                  <input
-                    type="text"
-                    name="make"
-                    required
-                    defaultValue={editingModel?.make || ""}
-                    placeholder="e.g., Ford, Chevrolet"
-                    className="w-full px-3 py-2 border rounded"
-                  />
-                </div>
-              </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Model Name *</label>
-                <input
-                  type="text"
-                  name="model_name"
-                  required
-                  defaultValue={editingModel?.model_name || ""}
-                  placeholder="e.g., F-150, Silverado"
-                  className="w-full px-3 py-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Trim Level</label>
-                <input
-                  type="text"
-                  name="trim_level"
-                  defaultValue={editingModel?.trim_level || ""}
-                  placeholder="e.g., XLT, LT"
-                  className="w-full px-3 py-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Body Style</label>
-                <select
-                  name="body_style"
-                  defaultValue={editingModel?.body_style || ""}
-                  className="w-full px-3 py-2 border rounded"
-                >
-                  <option value="">Select body style</option>
-                  <option value="SEDAN">Sedan</option>
-                  <option value="COUPE">Coupe</option>
-                  <option value="SUV">SUV</option>
-                  <option value="TRUCK">Truck</option>
-                  <option value="VAN">Van</option>
-                  <option value="WAGON">Wagon</option>
-                  <option value="OTHER">Other</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Engine</label>
-                  <input
-                    type="text"
-                    name="engine"
-                    defaultValue={editingModel?.engine || ""}
-                    placeholder="e.g., 3.5L V6"
-                    className="w-full px-3 py-2 border rounded"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Fuel Type</label>
-                  <select
-                    name="fuel_type"
-                    defaultValue={editingModel?.fuel_type || ""}
-                    className="w-full px-3 py-2 border rounded"
-                  >
-                    <option value="">Select fuel type</option>
-                    <option value="GASOLINE">Gasoline</option>
-                    <option value="DIESEL">Diesel</option>
-                    <option value="ELECTRIC">Electric</option>
-                    <option value="HYBRID">Hybrid</option>
-                    <option value="PLUG_IN_HYBRID">Plug-in Hybrid</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Default Service Interval (miles)</label>
+                <label className="block text-sm font-medium mb-1">Year</label>
                 <input
                   type="number"
-                  name="default_service_interval_miles"
-                  defaultValue={editingModel?.default_service_interval_miles || ""}
-                  placeholder="e.g., 5000"
+                  name="year"
+                  defaultValue={editingModel?.year || ""}
+                  placeholder="2024"
+                  className="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Make *</label>
+                <input
+                  type="text"
+                  name="make"
+                  required
+                  defaultValue={editingModel?.make || ""}
+                  placeholder="Ford"
+                  className="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Model *</label>
+                <input
+                  type="text"
+                  name="model"
+                  required
+                  defaultValue={editingModel?.model || ""}
+                  placeholder="F-150"
+                  className="w-full px-3 py-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <textarea
+                  name="description"
+                  defaultValue={editingModel?.description || ""}
+                  placeholder="Optional notes"
+                  rows="2"
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
@@ -411,7 +383,7 @@ export default function Vehicles() {
                   type="submit"
                   className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
                 >
-                  {editingModel ? "Update Model" : "Create Model"}
+                  {editingModel ? "Update" : "Create"}
                 </button>
                 <button
                   type="button"

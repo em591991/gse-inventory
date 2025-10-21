@@ -14,7 +14,7 @@ class VehicleModelAdmin(admin.ModelAdmin):
 
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
-    list_display = ('vehicle_id', 'vehicle_model', 'vin', 'plate_no', 'status', 'location', 'current_odometer')
+    list_display = ('vehicle_id', 'vehicle_model', 'vin', 'plate_no', 'unit_no', 'status', 'location', 'current_odometer', 'purchase_cost')
     list_filter = ('status', 'vehicle_model')
     search_fields = ('vin', 'plate_no', 'vehicle_model__make', 'vehicle_model__model')
     readonly_fields = ('vehicle_id',)

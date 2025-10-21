@@ -71,6 +71,7 @@ class Order(models.Model):
         'inventory.Location', 
         null=True, 
         blank=True, 
+        db_column='from_location_id',
         on_delete=models.SET_NULL, 
         related_name='orders_from'
     )
@@ -78,6 +79,7 @@ class Order(models.Model):
         'inventory.Location', 
         null=True, 
         blank=True, 
+        db_column='to_location_id',
         on_delete=models.SET_NULL, 
         related_name='orders_to'
     )

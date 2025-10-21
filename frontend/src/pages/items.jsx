@@ -14,7 +14,11 @@ function Items() {
 
   const fetchItems = async () => {
     const response = await api.get("items/");
-    setItems(response.data);
+    
+    // ✅ FIX: Handle paginated response (with 'results' key) or direct array
+    const itemList = Array.isArray(response.data) ? response.data : (response.data.results || []);
+    
+    setItems(itemList);
   };
 
   useEffect(() => {

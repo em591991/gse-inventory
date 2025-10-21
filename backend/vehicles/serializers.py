@@ -24,6 +24,11 @@ class VehicleModelSerializer(serializers.ModelSerializer):
         read_only_fields = ['vehicle_model_id']
 
 
+# Updated VehicleSerializer with new fields
+# File: backend/vehicles/serializers.py
+#
+# UPDATE the VehicleSerializer class
+
 class VehicleSerializer(serializers.ModelSerializer):
     """Serializer for Vehicle with nested model details"""
     vehicle_model_name = serializers.SerializerMethodField()
@@ -40,6 +45,9 @@ class VehicleSerializer(serializers.ModelSerializer):
             'vehicle_model_name',
             'vin',
             'plate_no',
+            'unit_no',           # ✨ ADD THIS
+            'purchased_at',      # ✨ ADD THIS
+            'purchase_cost',     # ✨ ADD THIS
             'status',
             'current_odometer',
             'registration_expires_at',
