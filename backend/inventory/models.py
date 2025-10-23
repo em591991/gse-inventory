@@ -1,6 +1,7 @@
 from django.db import models
 from vendors.models import Vendor
 import uuid
+from django.utils import timezone
 
 
 
@@ -44,6 +45,27 @@ class Item(models.Model):
         related_name='items'
     )
 
+    current_replacement_cost = models.DecimalField(
+        max_digits=12,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        help_text="Latest purchase price for quoting new jobs"
+    )
+
+    last_cost_update = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When cost was last updated"
+    )
+
+    def update_replacement_cost(self, new_cost):
+        """Update current replacement cost from latest purchase"""
+        from django.utils import timezone
+        self.current_replacement_cost = new_cost
+        self.last_cost_update = timezone.now()
+        self.save(update_fields=['current_replacement_cost', 'last_cost_update'])    
+
     class Meta:
         indexes = [
             models.Index(fields=['g_code'], name='idx_item_gcode'),
@@ -51,6 +73,9 @@ class Item(models.Model):
 
     def __str__(self):
         return f"{self.g_code} - {self.item_name}"
+    
+
+
 
 # ==============================
 #  VENDOR-ITEM RELATIONSHIP
@@ -177,13 +202,78 @@ class InventoryMovement(models.Model):
         blank=True,
         related_name="incoming_bin_movements",
     )
+    unit_cost = models.DecimalField(
+        max_digits=12,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        help_text="Cost per unit at time of movement"
+    )
+    total_cost = models.DecimalField(
+        max_digits=14,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        help_text="Total cost (qty × unit_cost)"
+    )
+    is_estimated = models.BooleanField(
+        default=False,
+        help_text="True if cost is estimated (from pending allocation)"
+    )
 
+    actual_cost_variance = models.DecimalField(
+        max_digits=14,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        help_text="Difference between estimated and actual cost"
+    )
+    work_order = models.ForeignKey(
+        'jobs.WorkOrder',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='inventory_movements',
+        db_column='work_order_id'
+    )
+    order = models.ForeignKey(
+        'orders.Order',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='inventory_movements',
+        db_column='order_id'
+    )
+    
+    order_line = models.ForeignKey(
+        'orders.OrderLine',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='inventory_movements',
+        db_column='order_line_id'
+    )
+    
+    reference = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Reference code or identifier"
+    )
     note = models.CharField(max_length=500, blank=True, null=True)
 
     class Meta:
+        db_table = 'inventory_movements'
         indexes = [
             models.Index(fields=["item"], name="idx_mov_item"),
             models.Index(fields=["moved_at"], name="idx_mov_time"),
+            models.Index(
+                fields=['work_order', 'total_cost'],
+                name='idx_mov_work_order_cost'
+            ),
+            models.Index(
+            fields=['order', 'order_line'],
+            name='idx_mov_order_line'
+            ),
         ]
         verbose_name = "Inventory Movement"
         verbose_name_plural = "Inventory Movements"
@@ -195,6 +285,13 @@ class InventoryMovement(models.Model):
             else "Movement"
         )
         return f"{self.item.name} ({self.qty} {self.uom}) - {direction}"
+    
+    def save(self, *args, **kwargs):
+        from decimal import Decimal
+        # Auto-calculate total_cost if not provided
+        if self.unit_cost and self.qty and not self.total_cost:
+             self.total_cost = abs(Decimal(str(self.qty))) * Decimal(str(self.unit_cost))
+        super().save(*args, **kwargs)
 
 # ==============================
 #  ITEM LOCATION POLICIES
@@ -229,3 +326,226 @@ class ItemLocationPolicy(models.Model):
 
 
 
+# =====================================================
+# FIFO COSTING MODELS
+# =====================================================
+
+class InventoryLayer(models.Model):
+    """
+    Tracks inventory cost layers for FIFO costing.
+    Each receipt creates a new layer with its own cost.
+    Oldest layers are consumed first.
+    """
+    layer_id = models.UUIDField(
+        primary_key=True, 
+        default=uuid.uuid4, 
+        editable=False,
+        db_column='layer_id'
+    )
+    
+    item = models.ForeignKey(
+        'Item',
+        on_delete=models.CASCADE,
+        related_name='inventory_layers',
+        db_column='item_id'
+    )
+    
+    location = models.ForeignKey(
+        'Location',
+        on_delete=models.CASCADE,
+        related_name='inventory_layers',
+        db_column='location_id'
+    )
+    
+    bin = models.ForeignKey(
+        'Bin',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='inventory_layers',
+        db_column='bin_id'
+    )
+    
+    qty_remaining = models.DecimalField(
+        max_digits=14,
+        decimal_places=4,
+        help_text="Quantity still available in this layer"
+    )
+    
+    unit_cost = models.DecimalField(
+        max_digits=12,
+        decimal_places=4,
+        help_text="Cost per unit for this layer"
+    )
+    
+    received_at = models.DateTimeField(
+        default=timezone.now,
+        db_column='received_at',
+        help_text="When this inventory was received"
+    )
+    
+    purchase_order = models.ForeignKey(
+        'orders.Order',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='inventory_layers',
+        db_column='purchase_order_id'
+    )
+    
+    reference = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Reference for manual adjustments or notes"
+    )
+    
+    class Meta:
+        db_table = 'inventory_layers'
+        ordering = ['received_at']  # FIFO: oldest first
+        indexes = [
+            models.Index(
+                fields=['item', 'location', 'received_at'],
+                name='idx_layer_fifo_lookup'
+            ),
+            models.Index(fields=['item'], name='idx_layer_item'),
+            models.Index(fields=['location'], name='idx_layer_location'),
+            models.Index(fields=['received_at'], name='idx_layer_received'),
+        ]
+        verbose_name = 'Inventory Layer'
+        verbose_name_plural = 'Inventory Layers'
+    
+    def __str__(self):
+        return (
+            f"{self.item.g_code} @ {self.location.name} - "
+            f"{self.qty_remaining} units @ ${self.unit_cost}"
+        )
+    
+    @property
+    def total_value(self):
+        """Calculate total value of this layer"""
+        return self.qty_remaining * self.unit_cost
+
+
+class PendingAllocation(models.Model):
+    """
+    Tracks materials allocated but not yet in stock.
+    Created when allocating more than available.
+    Auto-fulfilled when inventory received.
+    """
+    
+    class Status(models.TextChoices):
+        AWAITING_RECEIPT = 'AWAITING_RECEIPT', 'Awaiting Receipt'
+        PARTIALLY_FULFILLED = 'PARTIALLY_FULFILLED', 'Partially Fulfilled'
+        FULFILLED = 'FULFILLED', 'Fulfilled'
+        CANCELED = 'CANCELED', 'Canceled'
+    
+    pending_allocation_id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+        db_column='pending_allocation_id'
+    )
+    
+    item = models.ForeignKey(
+        'Item',
+        on_delete=models.CASCADE,
+        related_name='pending_allocations',
+        db_column='item_id'
+    )
+    
+    location = models.ForeignKey(
+        'Location',
+        on_delete=models.CASCADE,
+        related_name='pending_allocations',
+        db_column='location_id'
+    )
+    
+    work_order = models.ForeignKey(
+        'jobs.WorkOrder',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='pending_allocations',
+        db_column='work_order_id'
+    )
+    
+    order = models.ForeignKey(
+        'orders.Order',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='pending_allocations',
+        db_column='order_id'
+    )
+    
+    qty = models.DecimalField(
+        max_digits=14,
+        decimal_places=4,
+        help_text="Quantity pending fulfillment"
+    )
+    
+    estimated_unit_cost = models.DecimalField(
+        max_digits=12,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        help_text="Estimated cost (from last purchase)"
+    )
+    
+    estimated_total_cost = models.DecimalField(
+        max_digits=14,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        help_text="Estimated total cost"
+    )
+    
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.AWAITING_RECEIPT,
+        db_column='status'
+    )
+    
+    created_at = models.DateTimeField(
+        default=timezone.now,
+        db_column='created_at'
+    )
+    
+    fulfilled_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        db_column='fulfilled_at'
+    )
+    
+    notes = models.CharField(
+        max_length=500,
+        blank=True
+    )
+    
+    class Meta:
+        db_table = 'pending_allocations'
+        indexes = [
+            models.Index(
+                fields=['item', 'status'],
+                name='idx_pending_item_status'
+            ),
+            models.Index(fields=['work_order'], name='idx_pending_wo'),
+            models.Index(fields=['status'], name='idx_pending_status'),
+            models.Index(fields=['created_at'], name='idx_pending_created'),
+        ]
+        verbose_name = 'Pending Allocation'
+        verbose_name_plural = 'Pending Allocations'
+    
+    def __str__(self):
+        return (
+            f"{self.item.g_code} - {self.qty} units pending "
+            f"({self.status})"
+        )
+    
+    def save(self, *args, **kwargs):
+        # Auto-calculate estimated total cost
+        if not self.estimated_total_cost and self.estimated_unit_cost and self.qty:
+            from decimal import Decimal
+            self.estimated_total_cost = Decimal(str(self.qty)) * Decimal(str(self.estimated_unit_cost))
+        super().save(*args, **kwargs)
