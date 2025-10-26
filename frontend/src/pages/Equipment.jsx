@@ -12,6 +12,17 @@ export default function Equipment() {
   const [editingModel, setEditingModel] = useState(null); // ✨ NEW
   const [selectedTab, setSelectedTab] = useState("equipment");
 
+// Add this with your other queries
+  const { data: locationsData } = useQuery({
+    queryKey: ["locations"],
+    queryFn: async () => {
+      const response = await axiosClient.get("/locations/");
+      return response.data;
+    },
+  });
+
+
+
   // Fetch equipment
   const { data: equipmentData, isLoading: loadingEquipment } = useQuery({
     queryKey: ["equipment", page, search],
@@ -78,20 +89,50 @@ export default function Equipment() {
     },
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData);
-    saveMutation.mutate(data);
-  };
 
-  // ✨ NEW: Handle model form submit
-  const handleModelSubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData);
-    saveModelMutation.mutate(data);
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  
+  // Build data object with proper type conversion
+  const data = {
+    equipment_model: formData.get("equipment_model"),
+    serial_no: formData.get("serial_no") || null,
+    asset_tag: formData.get("asset_tag") || null,
+    status: formData.get("status"),
+    // Convert dates and numbers properly
+    purchased_at: formData.get("purchased_at") || null,
+    cost: formData.get("cost") ? parseFloat(formData.get("cost")) : null,
+    notes: formData.get("notes") || "",
+    // CRITICAL: Convert UUIDs properly (not empty strings!)
+    current_location: formData.get("current_location") || null,
+    current_bin: formData.get("current_bin") || null,
   };
+  
+  console.log("Submitting equipment:", data); // Debug log
+  saveMutation.mutate(data);
+};
+
+// ✨ FIXED: Handle model form submit with proper data type conversion
+const handleModelSubmit = (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  
+  const data = {
+    name: formData.get("name"),
+    manufacturer: formData.get("manufacturer"),
+    model_no: formData.get("model_no"),
+    description: formData.get("description") || "",
+    // Convert empty string to null for numeric field
+    default_service_interval_days: formData.get("default_service_interval_days") 
+      ? parseInt(formData.get("default_service_interval_days"))
+      : null,
+  };
+  
+  console.log("Submitting equipment model:", data); // Debug log
+  saveModelMutation.mutate(data);
+};
 
   const statusColors = {
     IN_STOCK: "bg-green-100 text-green-800",
@@ -224,8 +265,27 @@ export default function Equipment() {
                   <option value="RETIRED">Retired</option>
                 </select>
               </div>
+
+{/* Location - REQUIRED for tracking */}
               <div>
-                <label className="block text-sm font-medium mb-1">Purchase Date</label>
+                <label className="block text-sm font-medium mb-1">Location</label>
+                <select
+                  name="current_location"
+                  defaultValue={editingEquipment?.current_location || ""}
+                  className="w-full px-3 py-2 border rounded"
+                >
+                  <option value="">-- No Location --</option>
+                  {(locationsData?.results || []).map((loc) => (
+                    <option key={loc.location_id} value={loc.location_id}>
+                      {loc.name} ({loc.type})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Purchased Date */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Purchased Date</label>
                 <input
                   type="date"
                   name="purchased_at"
@@ -233,25 +293,34 @@ export default function Equipment() {
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
+
+              {/* Cost */}
               <div>
-                <label className="block text-sm font-medium mb-1">Purchase Cost</label>
+                <label className="block text-sm font-medium mb-1">Cost</label>
                 <input
                   type="number"
                   step="0.01"
-                  name="purchase_cost"
-                  defaultValue={editingEquipment?.purchase_cost || ""}
+                  name="cost"
+                  defaultValue={editingEquipment?.cost || ""}
+                  placeholder="e.g., 1250.00"
                   className="w-full px-3 py-2 border rounded"
                 />
               </div>
+
+              {/* Notes */}
               <div>
                 <label className="block text-sm font-medium mb-1">Notes</label>
                 <textarea
                   name="notes"
                   defaultValue={editingEquipment?.notes || ""}
-                  className="w-full px-3 py-2 border rounded"
                   rows="3"
+                  className="w-full px-3 py-2 border rounded"
                 />
               </div>
+
+
+
+             
               <div className="flex gap-2">
                 <button
                   type="submit"
@@ -372,6 +441,7 @@ export default function Equipment() {
                   <th className="px-4 py-3 text-left text-sm font-semibold">Model</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold">Location</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">Assigned To</th>  {/* ← ADDED */}
                   <th className="px-4 py-3 text-left text-sm font-semibold">Actions</th>
                 </tr>
               </thead>
@@ -379,14 +449,15 @@ export default function Equipment() {
                 {(equipmentData?.results || []).map((equip) => (
                   <tr key={equip.equipment_id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-sm font-mono">{equip.serial_no || "—"}</td>
-                    <td className="px-4 py-3 text-sm">{equip.asset_tag || "—"}</td>
-                    <td className="px-4 py-3 text-sm">{equip.equipment_model?.name || "—"}</td>
+                    <td className="px-4 py-3 text-sm">{equip.asset_tag || "—"}</td>  {/* ← FIXED */}
+                    <td className="px-4 py-3 text-sm">{equip.model_name || "—"}</td>  {/* ← FIXED */}
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${statusColors[equip.status]}`}>
                         {equip.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-sm">{equip.current_location?.name || "—"}</td>
+                    <td className="px-4 py-3 text-sm">{equip.location_name || "—"}</td>  {/* ← FIXED */}
+                    <td className="px-4 py-3 text-sm">{equip.assigned_to || "—"}</td>  {/* ← ADDED */}
                     <td className="px-4 py-3 text-sm">
                       <button
                         onClick={() => {

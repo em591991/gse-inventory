@@ -1,84 +1,95 @@
+# backend/inventory/serializers.py
 from rest_framework import serializers
-from vendoritems.models import VendorItem
 from .models import (
     Item,
     UnitOfMeasure,
     InventoryMovement,
     ItemLocationPolicy,
-    Location,
 )
-from vendors.serializers import VendorSerializer
-
-class LocationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Location
-        fields = ['location_id', 'name', 'type', 'is_active']
-        read_only_fields = ['location_id']
-
 
 
 class UnitOfMeasureSerializer(serializers.ModelSerializer):
+    """
+    Serializer for UnitOfMeasure.
+    CRITICAL: Primary key is 'uom_code' (CharField), NOT 'uom_id'.
+    """
     class Meta:
         model = UnitOfMeasure
-        fields = ['uom_code', 'description']
-
-
-class VendorItemSerializer(serializers.ModelSerializer):
-    vendor = VendorSerializer(read_only=True)
-    vendor_uom = UnitOfMeasureSerializer(read_only=True)
-
-    class Meta:
-        model = VendorItem
         fields = [
-            'id',
-            'vendor',
-            'vendor_sku',
-            'price',
-            'vendor_uom',
-            'conversion_factor',
-            'lead_time_days'
+            'uom_code',      # ✅ This is the PK - NOT 'uom_id'
+            'description'
         ]
 
-
 class ItemSerializer(serializers.ModelSerializer):
-    default_uom = UnitOfMeasureSerializer(read_only=True)
-    vendor_items = VendorItemSerializer(
-        source='vendoritem_set', many=True, read_only=True
-    )
-
+    """Serializer for Item model - matches ERD field names"""
+    
+    # Include UOM details
+    default_uom_code = serializers.CharField(source='default_uom.uom_code', read_only=True)
+    
     class Meta:
         model = Item
         fields = [
-            'id', 'name', 'description', 'sku',
-            'category', 'manufacturer',
-            'default_uom', 'vendor_items'
+            'item_id',
+            'g_code',
+            'item_name',
+            'description',
+            'category',
+            'default_uom',
+            'default_uom_code',
         ]
+        read_only_fields = ['item_id']
 
 
 class InventoryMovementSerializer(serializers.ModelSerializer):
-    item = ItemSerializer(read_only=True)
-    uom = UnitOfMeasureSerializer(read_only=True)
-    from_location = serializers.StringRelatedField()
-    to_location = serializers.StringRelatedField()
+    # Include related object details for display
+    item_g_code = serializers.CharField(source='item.g_code', read_only=True)
+    item_name = serializers.CharField(source='item.item_name', read_only=True)
+    uom_code = serializers.CharField(source='uom.uom_code', read_only=True)
+    from_location_name = serializers.CharField(source='from_location.name', read_only=True)
+    to_location_name = serializers.CharField(source='to_location.name', read_only=True)
 
     class Meta:
         model = InventoryMovement
         fields = [
-            'id', 'item', 'qty', 'uom', 'moved_at',
-            'from_location', 'from_bin',
-            'to_location', 'to_bin',
+            'movement_id',
+            'item',
+            'item_g_code',
+            'item_name',
+            'qty',
+            'uom',
+            'uom_code',
+            'moved_at',
+            'from_location',
+            'from_location_name',
+            'from_bin',
+            'to_location',
+            'to_location_name',
+            'to_bin',
             'note'
         ]
+        read_only_fields = ['movement_id', 'moved_at']
+
 
 class ItemLocationPolicySerializer(serializers.ModelSerializer):
-    item = ItemSerializer(read_only=True)
-    location = serializers.StringRelatedField()
-    preferred_vendor = VendorSerializer(read_only=True)
+    item_g_code = serializers.CharField(source='item.g_code', read_only=True)
+    item_name = serializers.CharField(source='item.item_name', read_only=True)
+    location_name = serializers.CharField(source='location.name', read_only=True)
+    preferred_vendor_name = serializers.CharField(source='preferred_vendor.name', read_only=True)
 
     class Meta:
         model = ItemLocationPolicy
         fields = [
-            'id', 'item', 'location',
-            'min_qty', 'max_qty', 'reorder_qty',
-            'lead_time_days', 'preferred_vendor'
+            'policy_id',
+            'item',
+            'item_g_code',
+            'item_name',
+            'location',
+            'location_name',
+            'min_qty',
+            'max_qty',
+            'reorder_qty',
+            'lead_time_days',
+            'preferred_vendor',
+            'preferred_vendor_name'
         ]
+        read_only_fields = ['policy_id']

@@ -1,4 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import Login from "./pages/Login";
+import AuthCallback from "./pages/AuthCallback";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Items from "./pages/Items";
@@ -13,29 +17,162 @@ import Vehicles from "./pages/Vehicles";
 import Locations from "./pages/Locations";
 import Users from "./pages/Users";
 import AuditLog from "./pages/AuditLog";
+import OrderDetail from './pages/OrderDetail';
+import CreateOrder from "./pages/CreateOrder";
 
-function App() {
+export default function App() {
   return (
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/items" element={<Items />} />
-          <Route path="/vendors" element={<Vendors />} />
-          <Route path="/vendors/:id" element={<VendorDetail />} />
-          <Route path="/vendor-items" element={<VendorItems />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/shipments" element={<Shipments />} />
-          <Route path="/equipment" element={<Equipment />} />
-          <Route path="/vehicles" element={<Vehicles />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/locations" element={<Locations />} />
-          <Route path="/audit" element={<AuditLog />} />
-          <Route path="/upload" element={<BulkUpload />} />
-        </Routes>
-      </Layout>
-    </Router>
+    <AuthProvider>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+
+        {/* Protected routes - require authentication */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/items"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Items />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vendors"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Vendors />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vendors/:id"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <VendorDetail />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vendor-items"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <VendorItems />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/locations"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Locations />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Orders />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders/create"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CreateOrder />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/shipments"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Shipments />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/equipment"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Equipment />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vehicles"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Vehicles />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Users />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/audit"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AuditLog />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/upload"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <BulkUpload />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Catch all - redirect to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AuthProvider>
   );
 }
-
-export default App;

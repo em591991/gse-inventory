@@ -1,3 +1,5 @@
+﻿# backend/users/urls.py
+
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
@@ -8,6 +10,11 @@ from .views import (
     UserRoleViewSet,
     UserLocationAccessViewSet,
     UserDepartmentAccessViewSet
+)
+from .oauth_views import (
+    microsoft_auth,
+    refresh_token,
+    get_microsoft_auth_url
 )
 
 router = DefaultRouter()
@@ -20,5 +27,11 @@ router.register(r'user-location-access', UserLocationAccessViewSet, basename='us
 router.register(r'user-department-access', UserDepartmentAccessViewSet, basename='userdepartmentaccess')
 
 urlpatterns = [
+    # OAuth endpoints
+    path('auth/microsoft/', microsoft_auth, name='microsoft-auth'),
+    path('auth/microsoft/url/', get_microsoft_auth_url, name='microsoft-auth-url'),
+    path('auth/refresh/', refresh_token, name='refresh-token'),
+    
+    # User management endpoints
     path('', include(router.urls)),
 ]

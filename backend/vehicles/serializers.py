@@ -65,22 +65,33 @@ class VehicleSerializer(serializers.ModelSerializer):
 class VehicleListSerializer(serializers.ModelSerializer):
     """Lightweight serializer for list views"""
     model_name = serializers.SerializerMethodField()
-    location_name = serializers.CharField(source='location.name', read_only=True)
+    location_name = serializers.CharField(source='location.name', read_only=True, allow_null=True)
+    assigned_to = serializers.SerializerMethodField()  # ← ADD THIS
     
     class Meta:
         model = Vehicle
         fields = [
             'vehicle_id',
             'model_name',
+            'unit_no',
             'plate_no',
+            'vin',
             'status',
             'location_name',
-            'current_odometer'
+            'current_odometer',
+            'assigned_to'
         ]
         read_only_fields = ['vehicle_id']
     
     def get_model_name(self, obj):
         return f"{obj.vehicle_model.year} {obj.vehicle_model.make} {obj.vehicle_model.model}"
+    
+    def get_assigned_to(self, obj):  # ← ADD THIS METHOD
+        """Get current active assignment"""
+        active_assignment = obj.assignments.filter(end_at__isnull=True).first()
+        if active_assignment and active_assignment.employee:
+            return f"{active_assignment.employee.first_name} {active_assignment.employee.last_name}"
+        return None
 
 
 class VehicleAssignmentSerializer(serializers.ModelSerializer):

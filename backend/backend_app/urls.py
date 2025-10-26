@@ -21,8 +21,9 @@ urlpatterns = [
 
     # API app routes
     path('api/', include('inventory.urls')),
+    path('api/', include('jobs.urls')),
+    path('api/locations/', include('locations.urls')),
     path('api/', include('vendors.urls')),
-    path('api/', include('orders.urls')),
     path("api/", include("vendoritems.urls")),
     path("api/", include("workorders.urls")),
     path('api/shipments/', include('shipments.urls')),
@@ -30,6 +31,7 @@ urlpatterns = [
     path('api/vehicles/', include('vehicles.urls')),
     path('api/users/', include('users.urls')),
     path('api/audit/', include('audit.urls')),
+  
     
     # API documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
@@ -38,8 +40,8 @@ urlpatterns = [
     path('api/', include('vendor_imports.urls')),
     path('api/', include('inventory.urls')),
 
-    path('admin/', admin.site.urls),
-    path('api/inventory/', include('inventory.urls')),
+
+
     path('api/orders/', include('orders.urls')),  # ADD THIS LINE
 ]
 

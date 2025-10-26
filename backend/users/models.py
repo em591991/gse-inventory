@@ -43,6 +43,13 @@ class User(models.Model):
     last_login_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+
+    USERNAME_FIELD = 'email'  # Use email as the username
+    REQUIRED_FIELDS = []  # Email is already required as USERNAME_FIELD
+
     class Meta:
         db_table = 'users'
         indexes = [
@@ -52,6 +59,26 @@ class User(models.Model):
 
     def __str__(self):
         return self.email
+    
+    @property
+    def id(self):
+        """Alias for user_id to work with Django's authentication system"""
+        return self.user_id
+    
+    @property
+    def pk(self):
+        """Primary key property for Django compatibility"""
+        return self.user_id
+    
+    @property
+    def is_authenticated(self):
+        """Always return True for authenticated users"""
+        return True
+    
+    @property
+    def is_anonymous(self):
+        """Always return False for authenticated users"""
+        return False
 
 
 class OAuthIdentity(models.Model):
@@ -222,7 +249,7 @@ class UserLocationAccess(models.Model):
         related_name='location_access'
     )
     location = models.ForeignKey(
-        'inventory.Location',
+        'locations.Location',
         on_delete=models.CASCADE,
         db_column='location_id',
         related_name='user_access'
@@ -278,4 +305,5 @@ class UserDepartmentAccess(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.department}"
+
 

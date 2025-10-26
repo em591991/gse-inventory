@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import UserMenu from "./UserMenu";
 
 export default function Layout({ children }) {
   const location = useLocation();
@@ -34,12 +35,9 @@ export default function Layout({ children }) {
               <span className="text-2xl">⚡</span>
               <h1 className="text-xl font-bold">GSE Inventory</h1>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm">Admin User</span>
-              <button className="px-3 py-1 bg-blue-700 rounded hover:bg-blue-800 text-sm">
-                Logout
-              </button>
-            </div>
+            
+            {/* User Menu Component */}
+            <UserMenu />
           </div>
         </div>
 
@@ -72,7 +70,7 @@ export default function Layout({ children }) {
         <div className="container mx-auto px-6 text-center text-sm">
           <p>GSE Inventory Management System © 2025</p>
           <p className="text-gray-400 mt-1">
-            71 Models | 22+ API Endpoints | Django + React
+            71 Models | 22+ API Endpoints | Django + React | Authenticated Users
           </p>
         </div>
       </footer>

@@ -5,6 +5,7 @@ from django.utils import timezone
 
 class VehicleStatus(models.TextChoices):
     """ERD enum: vehicle_status"""
+    AVAILABLE = 'AVAILABLE', 'AVAILABLE'
     IN_SERVICE = 'IN_SERVICE', 'In Service'
     MAINTENANCE = 'MAINTENANCE', 'Maintenance'
     OUT_OF_SERVICE = 'OUT_OF_SERVICE', 'Out of Service'
@@ -64,7 +65,7 @@ class Vehicle(models.Model):
     insurance_expires_at = models.DateField(null=True, blank=True)
     notes = models.CharField(max_length=500, blank=True)
     location = models.ForeignKey(
-        'inventory.Location',
+        'locations.Location',
         on_delete=models.PROTECT,
         db_column='location_id',
         related_name='vehicles'
@@ -102,7 +103,7 @@ class VehicleAssignment(models.Model):
         related_name='vehicle_assignments'
     )
     location = models.ForeignKey(
-        'inventory.Location',
+        'locations.Location',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -223,4 +224,5 @@ class VehicleProcurement(models.Model):
 
     def __str__(self):
         return f"Vehicle Procurement {self.vehicle_id}"
+
 

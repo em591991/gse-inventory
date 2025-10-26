@@ -27,6 +27,8 @@ class EquipmentModelSerializer(serializers.ModelSerializer):
         read_only_fields = ['equipment_model_id']
 
 
+# REPLACE EquipmentSerializer and EquipmentListSerializer in equipment/serializers.py
+
 class EquipmentSerializer(serializers.ModelSerializer):
     """Serializer for Equipment with nested model details"""
     equipment_model_name = serializers.CharField(
@@ -41,6 +43,7 @@ class EquipmentSerializer(serializers.ModelSerializer):
             'equipment_model',
             'equipment_model_name',
             'serial_no',
+            'asset_tag',  # ← ADDED
             'status',
             'purchased_at',
             'cost',
@@ -59,6 +62,8 @@ class EquipmentListSerializer(serializers.ModelSerializer):
         read_only=True,
         allow_null=True
     )
+    # Get current assignment info
+    assigned_to = serializers.SerializerMethodField()
     
     class Meta:
         model = Equipment
@@ -66,11 +71,19 @@ class EquipmentListSerializer(serializers.ModelSerializer):
             'equipment_id',
             'model_name',
             'serial_no',
+            'asset_tag',  # ← ADDED
             'status',
-            'location_name'
+            'location_name',
+            'assigned_to'  # ← ADDED
         ]
         read_only_fields = ['equipment_id']
-
+    
+    def get_assigned_to(self, obj):
+        """Get current active assignment"""
+        active_assignment = obj.assignments.filter(end_at__isnull=True).first()
+        if active_assignment and active_assignment.employee:
+            return f"{active_assignment.employee.first_name} {active_assignment.employee.last_name}"
+        return None
 
 class EquipmentAssignmentSerializer(serializers.ModelSerializer):
     """Serializer for EquipmentAssignment"""

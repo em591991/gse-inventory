@@ -52,15 +52,17 @@ class Equipment(models.Model):
         EquipmentModel,
         on_delete=models.PROTECT,
         db_column='equipment_model_id',
-        related_name='equipment_instances'
+        related_name='equipment_instances',
     )
     serial_no = models.CharField(max_length=120, unique=True, blank=True, null=True)
+    asset_tag = models.CharField(max_length=120, unique=True, blank=True, null=True)  # ← ADD THIS
     status = models.CharField(max_length=20, choices=EquipmentStatus.choices)
+
     purchased_at = models.DateTimeField(null=True, blank=True)
     cost = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     notes = models.CharField(max_length=500, blank=True)
     current_location = models.ForeignKey(
-        'inventory.Location',
+        'locations.Location',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -110,7 +112,7 @@ class EquipmentAssignment(models.Model):
         related_name='equipment_assignments'
     )
     location = models.ForeignKey(
-        'inventory.Location',
+        'locations.Location',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -236,3 +238,4 @@ class EquipmentProcurement(models.Model):
 
     def __str__(self):
         return f"Equipment Procurement {self.equipment_id}"
+

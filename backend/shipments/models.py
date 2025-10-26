@@ -24,7 +24,7 @@ class Shipment(models.Model):
         related_name='shipments'
     )
     staging_location = models.ForeignKey(
-        'inventory.Location',
+        'locations.Location',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -99,3 +99,4 @@ class ShipmentLine(models.Model):
 
     def __str__(self):
         return f"ShipmentLine {self.shipment_line_id}"
+

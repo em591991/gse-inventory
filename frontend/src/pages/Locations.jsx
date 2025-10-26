@@ -7,29 +7,29 @@ export default function Locations() {
   const [showForm, setShowForm] = useState(false);
   const [editingLocation, setEditingLocation] = useState(null);
 
-  // Fetch locations
+  // Fetch locations - FIXED URL
   const { data: locationsData, isLoading } = useQuery({
     queryKey: ["locations"],
     queryFn: async () => {
-      const response = await axiosClient.get("/inventory/locations/");
+      const response = await axiosClient.get("/locations/");  // ✅ FIXED
       return response.data;
     },
   });
 
-  // Create/Update location mutation
+  // Create/Update location mutation - FIXED URLS
   const saveMutation = useMutation({
     mutationFn: async (data) => {
-      console.log("Sending to backend:", data); // Debug log
+      console.log("Sending to backend:", data);
       
       if (editingLocation) {
-        // Update existing location - use location_id
+        // Update existing location - FIXED URL
         return axiosClient.put(
-          `/inventory/locations/${editingLocation.location_id}/`,
+          `/locations/${editingLocation.location_id}/`,  // ✅ FIXED
           data
         );
       }
-      // Create new location
-      return axiosClient.post("/inventory/locations/", data);
+      // Create new location - FIXED URL
+      return axiosClient.post("/locations/", data);  // ✅ FIXED
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["locations"]);
@@ -49,10 +49,10 @@ export default function Locations() {
     },
   });
 
-  // Delete location mutation
+  // Delete location mutation - FIXED URL
   const deleteMutation = useMutation({
     mutationFn: (location_id) =>
-      axiosClient.delete(`/inventory/locations/${location_id}/`),
+      axiosClient.delete(`/locations/${location_id}/`),  // ✅ FIXED
     onSuccess: () => {
       queryClient.invalidateQueries(["locations"]);
       alert("Location deleted successfully!");
@@ -71,14 +71,13 @@ export default function Locations() {
     e.preventDefault();
     const formData = new FormData(e.target);
     
-    // Build the data object with ONLY the fields the backend expects
     const data = {
       name: formData.get("name"),
       type: formData.get("type"),
-      is_active: formData.get("is_active") === "on", // Convert checkbox to boolean
+      is_active: formData.get("is_active") === "on",
     };
 
-    console.log("Form data before sending:", data); // Debug log
+    console.log("Form data before sending:", data);
     saveMutation.mutate(data);
   };
 
@@ -86,7 +85,6 @@ export default function Locations() {
     ? locationsData
     : locationsData?.results || [];
 
-  // Get badge color for location type
   const getTypeBadgeColor = (type) => {
     const colors = {
       WAREHOUSE: "bg-blue-100 text-blue-800",
@@ -120,7 +118,6 @@ export default function Locations() {
               {editingLocation ? "Edit Location" : "New Location"}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Name - REQUIRED */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Name <span className="text-red-500">*</span>
@@ -137,7 +134,6 @@ export default function Locations() {
                 <p className="text-xs text-gray-500 mt-1">Max 120 characters</p>
               </div>
 
-              {/* Type - REQUIRED */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Type <span className="text-red-500">*</span>
@@ -156,7 +152,6 @@ export default function Locations() {
                 </select>
               </div>
 
-              {/* Is Active - Optional (checkbox) */}
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -173,7 +168,6 @@ export default function Locations() {
                 Inactive locations won't appear in dropdowns
               </p>
 
-              {/* Buttons */}
               <div className="flex gap-2 pt-4">
                 <button
                   type="submit"
@@ -219,26 +213,16 @@ export default function Locations() {
             <table className="w-full">
               <thead className="bg-gray-100 border-b">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">
-                    Name
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">
-                    Type
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">
-                    Actions
-                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">Name</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">Type</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {locationsList.map((location) => (
                   <tr key={location.location_id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm font-medium">
-                      {location.name}
-                    </td>
+                    <td className="px-4 py-3 text-sm font-medium">{location.name}</td>
                     <td className="px-4 py-3 text-sm">
                       <span
                         className={`px-2 py-1 rounded text-xs font-medium ${getTypeBadgeColor(
@@ -250,9 +234,7 @@ export default function Locations() {
                     </td>
                     <td className="px-4 py-3 text-sm">
                       {location.is_active ? (
-                        <span className="text-green-600 font-medium">
-                          Active
-                        </span>
+                        <span className="text-green-600 font-medium">Active</span>
                       ) : (
                         <span className="text-gray-400">Inactive</span>
                       )}

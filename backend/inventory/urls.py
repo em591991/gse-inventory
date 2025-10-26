@@ -1,10 +1,18 @@
 # backend/inventory/urls.py
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import ItemViewSet, UnitOfMeasureViewSet
 from . import api_views
 
 app_name = 'inventory'
 
+# Router for ModelViewSets
+router = DefaultRouter()
+router.register(r'items', ItemViewSet, basename='item')
+router.register(r'units', UnitOfMeasureViewSet, basename='unitofmeasure')
+
 urlpatterns = [
+    # FIFO Inventory Management Endpoints
     path('receive/', api_views.receive_inventory, name='receive_inventory'),
     path('available/<uuid:item_id>/<uuid:location_id>/', 
          api_views.get_available_quantity, 
@@ -20,4 +28,7 @@ urlpatterns = [
          api_views.get_pending_allocations, 
          name='get_pending_allocations'),
     path('transfer/', api_views.transfer_inventory, name='transfer_inventory'),
+    
+    # Router URLs (items, units)
+    path('', include(router.urls)),
 ]

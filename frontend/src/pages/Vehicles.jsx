@@ -36,7 +36,7 @@ export default function Vehicles() {
   const { data: locationsData } = useQuery({
   queryKey: ["locations"],
   queryFn: async () => {
-    const response = await axiosClient.get("/inventory/locations/");
+    const response = await axiosClient.get("/locations/");
     return response.data;
   },
   });
@@ -416,24 +416,32 @@ const locationsList = Array.isArray(locationsData)
                   <th className="px-4 py-3 text-left text-sm font-semibold">License</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold">Odometer</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">Location</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">Assigned To</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold">Actions</th>
+                  
+                  
+
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {(vehiclesData?.results || []).map((vehicle) => (
                   <tr key={vehicle.vehicle_id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-sm font-semibold">{vehicle.unit_no || "—"}</td>
-                    <td className="px-4 py-3 text-sm">
-                      {vehicle.vehicle_model?.year} {vehicle.vehicle_model?.make} {vehicle.vehicle_model?.model_name}
-                    </td>
+                   
+                    <td className="px-4 py-3 text-sm">{vehicle.model_name || "—"}</td>
                     <td className="px-4 py-3 text-sm font-mono">{vehicle.vin}</td>
-                    <td className="px-4 py-3 text-sm">{vehicle.license_plate || "—"}</td>
+                    <td className="px-4 py-3 text-sm">{vehicle.plate_no || "—"}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${statusColors[vehicle.status]}`}>
                         {vehicle.status}
-                      </span>
+                         </span>
+
                     </td>
                     <td className="px-4 py-3 text-sm">{vehicle.current_odometer?.toLocaleString() || "—"} mi</td>
+                    <td className="px-4 py-3 text-sm">{vehicle.location_name || "—"}</td>                                       
+
+                    <td className="px-4 py-3 text-sm">{vehicle.assigned_to || "—"}</td>
                     <td className="px-4 py-3 text-sm">
                       <button
                         onClick={() => {

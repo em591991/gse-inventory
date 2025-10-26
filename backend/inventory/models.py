@@ -2,6 +2,7 @@ from django.db import models
 from vendors.models import Vendor
 import uuid
 from django.utils import timezone
+from locations.models import Location
 
 
 
@@ -87,49 +88,12 @@ class Item(models.Model):
 
 
 
-class Location(models.Model):
-    """
-    ERD Table: locations
-    Physical locations where inventory, vehicles, tools, and equipment are stored
-    """
-    # Primary key must be location_id (UUID) per ERD
-    location_id = models.UUIDField(
-        primary_key=True, 
-        default=uuid.uuid4, 
-        editable=False
-    )
-    
-    # ERD: name varchar(120) [not null]
-    name = models.CharField(max_length=120)
-    
-    # ERD: type varchar(120) [not null]
-    LOCATION_TYPES = [
-        ("WAREHOUSE", "Warehouse"),
-        ("TRUCK", "Truck"),
-        ("JOB", "Jobsite"),
-        ("STORAGE", "Storage"),
-    ]
-    type = models.CharField(max_length=120, choices=LOCATION_TYPES)
-    
-    # ERD: is_active boolean [not null]
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        db_table = 'locations'
-        indexes = [
-            models.Index(fields=["name", "type"], name="idx_locations_name_type"),
-        ]
-
-    def __str__(self):
-        return f"{self.name} ({self.type})"
-
-
 class Bin(models.Model):
     """ERD Table: bins"""
     bin_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
     location = models.ForeignKey(
-        Location,
+        'locations.Location',
         on_delete=models.CASCADE,
         related_name="bins",
         db_column='location_id'  # ← Add this!
@@ -149,7 +113,7 @@ class Bin(models.Model):
 
 class ItemDefaultBin(models.Model):
     item = models.ForeignKey("inventory.Item", on_delete=models.CASCADE)
-    location = models.ForeignKey(Location, on_delete=models.CASCADE,db_column='location_id')
+    location = models.ForeignKey('locations.Location', on_delete=models.CASCADE,db_column='location_id')
     bin = models.ForeignKey(Bin, on_delete=models.CASCADE)
 
     class Meta:
@@ -173,7 +137,7 @@ class InventoryMovement(models.Model):
     moved_at = models.DateTimeField(auto_now_add=True)
 
     from_location = models.ForeignKey(
-        "inventory.Location",
+        "locations.Location",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -188,7 +152,7 @@ class InventoryMovement(models.Model):
         related_name="outgoing_bin_movements",
     )
     to_location = models.ForeignKey(
-        "inventory.Location",
+        "locations.Location",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -299,7 +263,7 @@ class InventoryMovement(models.Model):
 
 class ItemLocationPolicy(models.Model):
     item = models.ForeignKey("inventory.Item", on_delete=models.CASCADE)
-    location = models.ForeignKey("inventory.Location", on_delete=models.CASCADE,db_column='location_id')
+    location = models.ForeignKey("locations.Location", on_delete=models.CASCADE,db_column='location_id')
     min_qty = models.DecimalField(max_digits=14, decimal_places=4, null=True, blank=True)
     max_qty = models.DecimalField(max_digits=14, decimal_places=4, null=True, blank=True)
     reorder_qty = models.DecimalField(max_digits=14, decimal_places=4, null=True, blank=True)
@@ -351,7 +315,7 @@ class InventoryLayer(models.Model):
     )
     
     location = models.ForeignKey(
-        'Location',
+        'locations.Location',
         on_delete=models.CASCADE,
         related_name='inventory_layers',
         db_column='location_id'
@@ -454,7 +418,7 @@ class PendingAllocation(models.Model):
     )
     
     location = models.ForeignKey(
-        'Location',
+        'locations.Location',
         on_delete=models.CASCADE,
         related_name='pending_allocations',
         db_column='location_id'

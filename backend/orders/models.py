@@ -68,7 +68,7 @@ class Order(models.Model):
     
     # For transfers
     from_location = models.ForeignKey(
-        'inventory.Location', 
+        'locations.Location', 
         null=True, 
         blank=True, 
         db_column='from_location_id',
@@ -76,7 +76,7 @@ class Order(models.Model):
         related_name='orders_from'
     )
     to_location = models.ForeignKey(
-        'inventory.Location', 
+        'locations.Location', 
         null=True, 
         blank=True, 
         db_column='to_location_id',
