@@ -34,7 +34,8 @@ class Order(models.Model):
     order_type = models.CharField(max_length=20, choices=OrderType.choices)
     order_status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.DRAFT)
     ordered_at = models.DateTimeField(default=timezone.now)
-    notes = models.TextField(blank=True, null=True)
+    fulfillment_date = models.DateField(null=True, blank=True, help_text='Date when order was fulfilled/completed')
+    description = models.TextField(default='', help_text='Order description/purpose')
     
     # Optional references - depends on order type
     work_order = models.ForeignKey(
@@ -59,13 +60,43 @@ class Order(models.Model):
         related_name='orders'
     )
     vendor = models.ForeignKey(
-        'vendors.Vendor', 
-        null=True, 
-        blank=True, 
+        'vendors.Vendor',
+        null=True,
+        blank=True,
         on_delete=models.SET_NULL,
         related_name='orders'
     )
-    
+
+    # Assigned user/handler for the order
+    assigned_user = models.ForeignKey(
+        'users.User',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='assigned_orders',
+        help_text='User responsible for handling this order'
+    )
+
+    # Department (auto-populated from job or manually set)
+    department = models.ForeignKey(
+        'departments.Department',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='orders',
+        help_text='Department associated with this order'
+    )
+
+    # Order creator/author
+    created_by = models.ForeignKey(
+        'users.User',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='created_orders',
+        help_text='User who created this order'
+    )
+
     # For transfers
     from_location = models.ForeignKey(
         'locations.Location', 
@@ -113,13 +144,13 @@ class OrderLine(models.Model):
     line_no = models.IntegerField()
     
     item = models.ForeignKey(
-        'inventory.Item', 
-        null=True, 
-        blank=True, 
+        'inventory.Item',
+        null=True,
+        blank=True,
         on_delete=models.SET_NULL,
         related_name='order_lines'
     )
-    purchase_category = models.CharField(max_length=20, choices=PurchaseCategory.choices)
+    purchase_category = models.CharField(max_length=20, choices=PurchaseCategory.choices, null=True, blank=True)
     description = models.CharField(max_length=500)
     
     uom = models.ForeignKey(

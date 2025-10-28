@@ -13,7 +13,9 @@ export default function CreateOrder() {
   const [vendor, setVendor] = useState("");
   const [fromLocation, setFromLocation] = useState("");
   const [toLocation, setToLocation] = useState("");
-  const [notes, setNotes] = useState("");
+  const [purchaseCategory, setPurchaseCategory] = useState("MATERIAL");
+  const [assignedUser, setAssignedUser] = useState("");
+  const [description, setDescription] = useState("");
   const [orderLines, setOrderLines] = useState([]);
 
   // Dropdown data
@@ -23,6 +25,7 @@ export default function CreateOrder() {
   const [locations, setLocations] = useState([]);
   const [items, setItems] = useState([]);
   const [uoms, setUoms] = useState([]);
+  const [users, setUsers] = useState([]);
 
   // Modal state
   const [showItemPicker, setShowItemPicker] = useState(false);
@@ -40,14 +43,25 @@ export default function CreateOrder() {
 
   const fetchDropdownData = async () => {
     try {
-      const [customersRes, jobsRes, vendorsRes, locationsRes, itemsRes, uomsRes] = await Promise.all([
+      const [customersRes, jobsRes, vendorsRes, locationsRes, itemsRes, uomsRes, usersRes] = await Promise.all([
         axiosClient.get("/customers/"),
         axiosClient.get("/jobs/"),
         axiosClient.get("/vendors/"),
         axiosClient.get("/locations/"),
         axiosClient.get("/items/"),
         axiosClient.get("/units/"),
+        axiosClient.get("/users/users/"),
       ]);
+
+      console.log("API Responses:", {
+        customers: customersRes.data,
+        jobs: jobsRes.data,
+        vendors: vendorsRes.data,
+        locations: locationsRes.data,
+        items: itemsRes.data,
+        uoms: uomsRes.data,
+        users: usersRes.data,
+      });
 
       // Handle both paginated and direct array responses
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : customersRes.data.results || []);
@@ -56,9 +70,11 @@ export default function CreateOrder() {
       setLocations(Array.isArray(locationsRes.data) ? locationsRes.data : locationsRes.data.results || []);
       setItems(Array.isArray(itemsRes.data) ? itemsRes.data : itemsRes.data.results || []);
       setUoms(Array.isArray(uomsRes.data) ? uomsRes.data : uomsRes.data.results || []);
+      setUsers(Array.isArray(usersRes.data) ? usersRes.data : usersRes.data.results || []);
     } catch (err) {
       console.error("Error fetching dropdown data:", err);
-      setError("Failed to load form data. Please refresh the page.");
+      console.error("Error details:", err.response?.data);
+      setError(`Failed to load form data: ${err.response?.data?.detail || err.message}. Check console for details.`);
     }
   };
 
@@ -141,41 +157,55 @@ export default function CreateOrder() {
     }
 
     try {
-      // Create order
+      // Build order data with nested order lines
       const orderData = {
         order_type: orderType,
         order_status: "DRAFT",
-        customer_id: customer || null,
-        job_id: job || null,
-        vendor_id: vendor || null,
-        from_location_id: fromLocation || null,
-        to_location_id: toLocation || null,
-        notes: notes || "",
+        customer: customer || null,
+        job: job || null,
+        vendor: vendor || null,
+        from_location: fromLocation || null,
+        to_location: toLocation || null,
+        assigned_user: assignedUser || null,
+        description: description,
+        order_lines: orderLines.map((line, index) => {
+          const lineData = {
+            line_no: index + 1,
+            item: line.item_id,
+            description: line.description,
+            qty: parseFloat(line.qty),
+            price_each: parseFloat(line.price_each),
+            uom: line.uom_code,
+            g_code: line.g_code,
+          };
+
+          // Only include purchase_category for purchase orders
+          if (orderType === "PURCHASE") {
+            lineData.purchase_category = purchaseCategory;
+          }
+
+          return lineData;
+        }),
       };
 
+      // Add purchase_category at order level for purchase orders
+      if (orderType === "PURCHASE") {
+        orderData.purchase_category = purchaseCategory;
+      }
+
+      console.log("Sending order data:", orderData);
+
+      // Create order with nested order lines in single request
       const orderResponse = await axiosClient.post("/orders/", orderData);
       const orderId = orderResponse.data.order_id;
-
-      // Create order lines
-      const linePromises = orderLines.map((line, index) => {
-        return axiosClient.post(`/orders/${orderId}/lines/`, {
-          line_no: index + 1,
-          item_id: line.item_id,
-          g_code: line.g_code,
-          description: line.description,
-          qty: parseFloat(line.qty),
-          price_each: parseFloat(line.price_each),
-          uom_id: line.uom_id,
-        });
-      });
-
-      await Promise.all(linePromises);
 
       // Success! Navigate to order detail
       navigate(`/orders/${orderId}`);
     } catch (err) {
       console.error("Error creating order:", err);
-      setError(err.response?.data?.message || "Failed to create order. Please try again.");
+      console.error("Error response data:", err.response?.data);
+      console.error("Error status:", err.response?.status);
+      setError(`Failed to create order: ${JSON.stringify(err.response?.data) || err.message}`);
       setLoading(false);
     }
   };
@@ -263,7 +293,7 @@ export default function CreateOrder() {
                   <option value="">Select Job</option>
                   {jobs.map((j) => (
                     <option key={j.job_id} value={j.job_id}>
-                      {j.job_code} - {j.job_name}
+                      {j.job_code} - {j.name}
                     </option>
                   ))}
                 </select>
@@ -284,6 +314,45 @@ export default function CreateOrder() {
                   {vendors.map((v) => (
                     <option key={v.vendor_id} value={v.vendor_id}>
                       {v.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Purchase Category (for PURCHASE orders) */}
+            {orderType === "PURCHASE" && (
+              <div>
+                <label className="block text-sm font-medium mb-2">Purchase Category *</label>
+                <select
+                  value={purchaseCategory}
+                  onChange={(e) => setPurchaseCategory(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md"
+                  required
+                >
+                  <option value="MATERIAL">Material</option>
+                  <option value="TOOL">Tool</option>
+                  <option value="EQUIPMENT">Equipment</option>
+                  <option value="VEHICLE">Vehicle</option>
+                  <option value="SERVICE">Service</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+            )}
+
+            {/* Assigned User/Handler (for non-PURCHASE orders) */}
+            {orderType !== "PURCHASE" && (
+              <div>
+                <label className="block text-sm font-medium mb-2">Assign To (Optional)</label>
+                <select
+                  value={assignedUser}
+                  onChange={(e) => setAssignedUser(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md"
+                >
+                  <option value="">Select User</option>
+                  {users.map((user) => (
+                    <option key={user.user_id} value={user.user_id}>
+                      {user.email}
                     </option>
                   ))}
                 </select>
@@ -329,15 +398,16 @@ export default function CreateOrder() {
             )}
           </div>
 
-          {/* Notes */}
+          {/* Description */}
           <div>
-            <label className="block text-sm font-medium mb-2">Notes</label>
+            <label className="block text-sm font-medium mb-2">Description *</label>
             <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="w-full px-3 py-2 border rounded-md"
               rows="3"
-              placeholder="Optional notes about this order"
+              placeholder="Describe the purpose of this order"
+              required
             />
           </div>
 
@@ -348,7 +418,7 @@ export default function CreateOrder() {
               <button
                 type="button"
                 onClick={handleAddItem}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="px-4 py-2 bg-emerald-600 text-white font-medium rounded-md hover:bg-emerald-700 shadow-md transition-colors"
               >
                 + Add Item
               </button>
@@ -391,10 +461,9 @@ export default function CreateOrder() {
                           <input
                             type="number"
                             value={line.price_each}
-                            onChange={(e) => handleUpdateLine(index, "price_each", e.target.value)}
-                            className="w-full px-2 py-1 border rounded text-sm"
-                            min="0"
-                            step="0.01"
+                            readOnly
+                            className="w-full px-2 py-1 border rounded text-sm bg-gray-100 cursor-not-allowed"
+                            title="Price is auto-populated from vendor item table"
                           />
                         </td>
                         <td className="px-4 py-2">
@@ -454,7 +523,7 @@ export default function CreateOrder() {
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+              className="px-6 py-2 bg-emerald-600 text-white font-medium rounded-md hover:bg-emerald-700 shadow-md disabled:opacity-50 transition-colors"
               disabled={loading || orderLines.length === 0}
             >
               {loading ? "Creating..." : "Create Order"}
@@ -505,11 +574,11 @@ export default function CreateOrder() {
                     <button
                       key={item.item_id}
                       onClick={() => handleSelectItem(item)}
-                      className="w-full text-left p-3 border rounded-md hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                      className="w-full text-left p-3 border rounded-md hover:bg-primary-50 hover:border-primary-300 transition-colors"
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <div className="font-semibold text-blue-600">{item.g_code}</div>
+                          <div className="font-semibold text-primary-600">{item.g_code}</div>
                           <div className="text-sm">{item.item_name}</div>
                           {item.description && (
                             <div className="text-xs text-gray-500 mt-1">{item.description}</div>

@@ -19,11 +19,14 @@ export default function OrderDetail() {
     try {
       setLoading(true);
       setError(null);
+      console.log("Fetching order with ID:", orderId);
       const data = await fetchOrderById(orderId);
+      console.log("Order data received:", data);
       setOrder(data);
     } catch (err) {
       console.error("Error loading order:", err);
-      setError("Failed to load order details.");
+      console.error("Error response:", err.response?.data);
+      setError(`Failed to load order details: ${err.response?.data?.detail || err.message}`);
     } finally {
       setLoading(false);
     }
@@ -180,6 +183,36 @@ export default function OrderDetail() {
       <div className="bg-white rounded-lg shadow p-6 mb-6">
         <h2 className="text-lg font-semibold mb-4">Order Information</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {order.description && (
+            <div className="col-span-2 md:col-span-4">
+              <p className="text-sm text-gray-500">Description</p>
+              <p className="font-medium">{order.description}</p>
+            </div>
+          )}
+          {(order.order_type === "PURCHASE" || order.order_type === "RMA" ||
+            order.order_type === "SALES" || order.order_type === "RETURN") && (
+            <div className="col-span-2">
+              <p className="text-sm text-gray-500">
+                {(order.order_type === "PURCHASE" || order.order_type === "RMA") ? "Vendor" : "Job"}
+              </p>
+              <p className="font-medium">
+                {(() => {
+                  // PURCHASE or RMA: Show vendor
+                  if (order.order_type === "PURCHASE" || order.order_type === "RMA") {
+                    return order.vendor?.name || "N/A";
+                  }
+                  // SALES or RETURN: Show "Customer - Job"
+                  if (order.order_type === "SALES" || order.order_type === "RETURN") {
+                    if (order.customer && order.job) {
+                      return `${order.customer.name} - ${order.job.name || order.job.job_code}`;
+                    }
+                    return order.customer?.name || "N/A";
+                  }
+                  return "N/A";
+                })()}
+              </p>
+            </div>
+          )}
           <div>
             <p className="text-sm text-gray-500">Order Type</p>
             <p className="font-medium">{order.order_type}</p>
@@ -199,21 +232,35 @@ export default function OrderDetail() {
             <p className="font-medium">{formatDate(order.ordered_at)}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">Customer/Vendor</p>
-            <p className="font-medium">
-              {order.customer?.name || order.vendor?.name || "N/A"}
-            </p>
+            <p className="text-sm text-gray-500">Created By</p>
+            <p className="font-medium">{order.created_by?.name || "N/A"}</p>
           </div>
-          {order.job_code && (
+          <div>
+            <p className="text-sm text-gray-500">From</p>
+            <p className="font-medium">{order.from_location?.name || "N/A"}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">To</p>
+            <p className="font-medium">{order.to_location?.name || "N/A"}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Assigned To</p>
+            <p className="font-medium">{order.assigned_user?.name || "N/A"}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Fulfillment Date</p>
+            <p className="font-medium">{order.fulfillment_date ? formatDate(order.fulfillment_date) : "N/A"}</p>
+          </div>
+          {order.job && (
             <div>
-              <p className="text-sm text-gray-500">Job Code</p>
-              <p className="font-medium">{order.job_code}</p>
+              <p className="text-sm text-gray-500">Job</p>
+              <p className="font-medium">{order.job?.name || order.job?.job_code || "N/A"}</p>
             </div>
           )}
-          {order.notes && (
-            <div className="col-span-2 md:col-span-4">
-              <p className="text-sm text-gray-500">Notes</p>
-              <p className="font-medium">{order.notes}</p>
+          {order.department && (
+            <div>
+              <p className="text-sm text-gray-500">Department</p>
+              <p className="font-medium">{order.department?.name || "N/A"}</p>
             </div>
           )}
         </div>
@@ -268,7 +315,7 @@ export default function OrderDetail() {
                       {line.qty}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {line.uom_code || "EA"}
+                      {line.uom?.uom_code || line.uom_code || "EA"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
                       ${parseFloat(line.price_each).toFixed(2)}

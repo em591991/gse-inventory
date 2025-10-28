@@ -22,7 +22,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     Provides CRUD operations and filtering
     """
     queryset = Order.objects.all().select_related(
-        'customer', 'vendor', 'job', 'work_order'
+        'customer', 'vendor', 'job', 'work_order', 'from_location', 'to_location',
+        'created_by', 'created_by__employee', 'assigned_user', 'assigned_user__employee', 'department'
     ).prefetch_related('lines')
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['order_type', 'order_status', 'customer', 'vendor']
