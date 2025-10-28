@@ -19,6 +19,7 @@ import Users from "./pages/Users";
 import AuditLog from "./pages/AuditLog";
 import OrderDetail from './pages/OrderDetail';
 import CreateOrder from "./pages/CreateOrder";
+import RFQs from "./pages/RFQs";
 
 export default function App() {
   return (
@@ -110,6 +111,16 @@ export default function App() {
           }
         />
         <Route
+          path="/orders/:orderId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <OrderDetail />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/shipments"
           element={
             <ProtectedRoute>
@@ -165,6 +176,16 @@ export default function App() {
             <ProtectedRoute>
               <Layout>
                 <BulkUpload />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rfqs"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <RFQs />
               </Layout>
             </ProtectedRoute>
           }

@@ -11,6 +11,7 @@ export default function Layout({ children }) {
     { path: "/vendors", label: "Vendors"},
     { path: "/vendor-items", label: "Vendor Items"},
     { path: "/orders", label: "Orders"},
+    { path: "/rfqs", label: "RFQs"},
     { path: "/shipments", label: "Shipments"},
     { path: "/equipment", label: "Equipment"},
     { path: "/vehicles", label: "Vehicles" },
@@ -28,30 +29,29 @@ export default function Layout({ children }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Navigation Bar */}
-      <nav className="bg-blue-600 text-white shadow-lg">
-        <div className="px-6 py-4">
+      <nav className="bg-white shadow-lg border-b-4 border-primary">
+        <div className="px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">⚡</span>
-              <h1 className="text-xl font-bold">GSE Inventory</h1>
+              <img src="/logo.png" alt="GSE Integrated" className="h-12" />
             </div>
-            
+
             {/* User Menu Component */}
             <UserMenu />
           </div>
         </div>
 
         {/* Navigation Links */}
-        <div className="px-6 py-2 bg-blue-700">
+        <div className="px-6 py-0 bg-gray-100 border-t border-gray-200">
           <div className="flex gap-1 overflow-x-auto">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-4 py-2 rounded-t text-sm whitespace-nowrap transition ${
+                className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition border-b-3 ${
                   isActive(item.path)
-                    ? "bg-white text-blue-600 font-semibold"
-                    : "text-white hover:bg-blue-600"
+                    ? "bg-white text-primary border-b-4 border-primary"
+                    : "text-gray-700 hover:bg-white hover:text-primary border-b-4 border-transparent"
                 }`}
               >
                 <span className="mr-1">{item.icon}</span>
