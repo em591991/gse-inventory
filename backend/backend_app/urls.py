@@ -31,8 +31,8 @@ urlpatterns = [
     path('api/vehicles/', include('vehicles.urls')),
     path('api/users/', include('users.urls')),
     path('api/audit/', include('audit.urls')),
-  
-    
+    path('api/', include('rfqs.urls')),
+
     # API documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

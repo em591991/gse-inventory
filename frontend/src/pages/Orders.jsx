@@ -300,12 +300,6 @@ export default function Orders() {
                   Description {sortField === "description" && (sortDirection === "asc" ? "↑" : "↓")}
                 </th>
                 <th
-                  onClick={() => handleSort("vendor_customer")}
-                  className="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-gray-200 select-none"
-                >
-                  Vendor/Job {sortField === "vendor_customer" && (sortDirection === "asc" ? "↑" : "↓")}
-                </th>
-                <th
                   onClick={() => handleSort("order_type")}
                   className="px-4 py-3 text-left text-sm font-medium cursor-pointer hover:bg-gray-200 select-none"
                 >
@@ -367,23 +361,6 @@ export default function Orders() {
                 <tr key={order.order_id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm max-w-xs truncate" title={order.description}>
                     {order.description || "-"}
-                  </td>
-                  <td className="px-4 py-3 text-sm">
-                    {(() => {
-                      // PURCHASE or RMA: Show vendor
-                      if (order.order_type === "PURCHASE" || order.order_type === "RMA") {
-                        return order.vendor?.name || "-";
-                      }
-                      // SALES or RETURN: Show "Customer - Job"
-                      if (order.order_type === "SALES" || order.order_type === "RETURN") {
-                        if (order.customer && order.job) {
-                          return `${order.customer.name} - ${order.job.name || order.job.job_code}`;
-                        }
-                        return order.customer?.name || "-";
-                      }
-                      // ADJUSTMENT or TRANSFER: Show nothing
-                      return "-";
-                    })()}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(order.order_type)}`}>

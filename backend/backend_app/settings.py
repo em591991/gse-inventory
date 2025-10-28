@@ -86,12 +86,10 @@ INSTALLED_APPS = [
     'manufacturers',
     'shipments',        
     'equipment',        
-    'vehicles',         
-    'users',            
+    'vehicles',
+    'users',
     'audit',
-     
-         
-    
+    'rfqs',
 ]
 
 REST_FRAMEWORK = {

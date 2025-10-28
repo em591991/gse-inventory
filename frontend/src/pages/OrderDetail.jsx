@@ -189,30 +189,6 @@ export default function OrderDetail() {
               <p className="font-medium">{order.description}</p>
             </div>
           )}
-          {(order.order_type === "PURCHASE" || order.order_type === "RMA" ||
-            order.order_type === "SALES" || order.order_type === "RETURN") && (
-            <div className="col-span-2">
-              <p className="text-sm text-gray-500">
-                {(order.order_type === "PURCHASE" || order.order_type === "RMA") ? "Vendor" : "Job"}
-              </p>
-              <p className="font-medium">
-                {(() => {
-                  // PURCHASE or RMA: Show vendor
-                  if (order.order_type === "PURCHASE" || order.order_type === "RMA") {
-                    return order.vendor?.name || "N/A";
-                  }
-                  // SALES or RETURN: Show "Customer - Job"
-                  if (order.order_type === "SALES" || order.order_type === "RETURN") {
-                    if (order.customer && order.job) {
-                      return `${order.customer.name} - ${order.job.name || order.job.job_code}`;
-                    }
-                    return order.customer?.name || "N/A";
-                  }
-                  return "N/A";
-                })()}
-              </p>
-            </div>
-          )}
           <div>
             <p className="text-sm text-gray-500">Order Type</p>
             <p className="font-medium">{order.order_type}</p>
