@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import UserMenu from "./UserMenu";
 
 export default function Layout({ children }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("Logistics");
 
   // Main navigation sections
@@ -67,6 +68,15 @@ export default function Layout({ children }) {
     return location.pathname.startsWith(path);
   };
 
+  const handleSectionClick = (sectionId) => {
+    setActiveSection(sectionId);
+    // Navigate to first page in that section if it has pages
+    const pages = sectionNavItems[sectionId];
+    if (pages && pages.length > 0) {
+      navigate(pages[0].path);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Navigation Bar */}
@@ -83,7 +93,7 @@ export default function Layout({ children }) {
               {mainSections.map((section) => (
                 <button
                   key={section.id}
-                  onClick={() => setActiveSection(section.id)}
+                  onClick={() => handleSectionClick(section.id)}
                   className={`px-4 py-2 text-sm font-semibold transition rounded-md ${
                     activeSection === section.id
                       ? "bg-gseblue text-white"
