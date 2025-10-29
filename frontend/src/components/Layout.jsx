@@ -19,7 +19,6 @@ export default function Layout({ children }) {
   // Secondary navigation items organized by section
   const sectionNavItems = {
     Logistics: [
-      { path: "/logistics", label: "Dashboard" },
       { path: "/items", label: "Inventory" },
       { path: "/locations", label: "Locations" },
       { path: "/vendors", label: "Vendors" },
