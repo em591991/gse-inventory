@@ -24,6 +24,11 @@ import CreateRFQ from "./pages/CreateRFQ";
 import RFQDetail from "./pages/RFQDetail";
 import QuoteImport from "./pages/QuoteImport";
 import ReplenishmentView from "./pages/ReplenishmentView";
+import LogisticsDashboard from "./pages/LogisticsDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import SalesDashboard from "./pages/SalesDashboard";
+import OperationsDashboard from "./pages/OperationsDashboard";
+import InfoDashboard from "./pages/InfoDashboard";
 
 export default function App() {
   return (
@@ -44,6 +49,59 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Section Dashboards */}
+        <Route
+          path="/logistics"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <LogisticsDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AdminDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sales"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <SalesDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/operations"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <OperationsDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/info"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <InfoDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/items"
           element={

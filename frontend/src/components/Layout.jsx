@@ -19,6 +19,7 @@ export default function Layout({ children }) {
   // Secondary navigation items organized by section
   const sectionNavItems = {
     Logistics: [
+      { path: "/logistics", label: "Dashboard" },
       { path: "/items", label: "Inventory" },
       { path: "/locations", label: "Locations" },
       { path: "/vendors", label: "Vendors" },
@@ -30,18 +31,18 @@ export default function Layout({ children }) {
       { path: "/vehicles", label: "Vehicles" },
     ],
     Sales: [
-      // Placeholder for future sales pages
+      { path: "/sales", label: "Dashboard" },
     ],
     Operations: [
-      // Placeholder for future operations pages
+      { path: "/operations", label: "Dashboard" },
     ],
     Admin: [
+      { path: "/admin", label: "Dashboard" },
       { path: "/users", label: "Users" },
       { path: "/audit", label: "Audit Log" },
-      // Reporting will go here when built
     ],
     Info: [
-      // Placeholder for info/help pages
+      { path: "/info", label: "Dashboard" },
     ],
   };
 
@@ -95,10 +96,10 @@ export default function Layout({ children }) {
                 <button
                   key={section.id}
                   onClick={() => handleSectionClick(section.id)}
-                  className={`px-4 py-2 text-sm font-semibold transition rounded-md ${
+                  className={`px-4 py-3 text-sm font-semibold whitespace-nowrap transition border-b-4 ${
                     activeSection === section.id
-                      ? "bg-gseblue text-white"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "text-gseblue border-gseblue"
+                      : "text-gray-700 hover:text-gseblue border-transparent"
                   }`}
                 >
                   {section.label}
