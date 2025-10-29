@@ -83,13 +83,14 @@ export default function Layout({ children }) {
       <nav className="bg-white shadow-lg border-b-4 border-gseblue">
         <div className="px-6 py-3">
           <div className="flex items-center justify-between">
-            {/* Logo - Clickable to Home */}
-            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition">
-              <img src="/logo.png" alt="GSE Integrated" className="h-12" />
-            </Link>
-
-            {/* Main Navigation Sections */}
+            {/* Left side: Logo + Main Navigation Sections */}
             <div className="flex items-center gap-6">
+              {/* Logo - Clickable to Home */}
+              <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition">
+                <img src="/logo.png" alt="GSE Integrated" className="h-12" />
+              </Link>
+
+              {/* Main Navigation Sections */}
               {mainSections.map((section) => (
                 <button
                   key={section.id}
@@ -105,7 +106,7 @@ export default function Layout({ children }) {
               ))}
             </div>
 
-            {/* User Menu Component */}
+            {/* Right side: User Menu Component */}
             <UserMenu />
           </div>
         </div>
