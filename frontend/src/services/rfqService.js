@@ -1,62 +1,60 @@
 // frontend/src/services/rfqService.js
-import axios from 'axios';
-
-const API_URL = 'http://127.0.0.1:8000/api';
+import axiosClient from '../api/axiosClient';
 
 // RFQ endpoints
 export const fetchRFQs = async () => {
-  const response = await axios.get(`${API_URL}/rfqs/`);
+  const response = await axiosClient.get('/rfqs/');
   return response.data;
 };
 
 export const fetchRFQById = async (rfqId) => {
-  const response = await axios.get(`${API_URL}/rfqs/${rfqId}/`);
+  const response = await axiosClient.get(`/rfqs/${rfqId}/`);
   return response.data;
 };
 
 export const createRFQ = async (rfqData) => {
-  const response = await axios.post(`${API_URL}/rfqs/`, rfqData);
+  const response = await axiosClient.post('/rfqs/', rfqData);
   return response.data;
 };
 
 export const updateRFQ = async (rfqId, rfqData) => {
-  const response = await axios.patch(`${API_URL}/rfqs/${rfqId}/`, rfqData);
+  const response = await axiosClient.patch(`/rfqs/${rfqId}/`, rfqData);
   return response.data;
 };
 
 export const deleteRFQ = async (rfqId) => {
-  const response = await axios.delete(`${API_URL}/rfqs/${rfqId}/`);
+  const response = await axiosClient.delete(`/rfqs/${rfqId}/`);
   return response.data;
 };
 
 export const sendRFQToVendors = async (rfqId) => {
-  const response = await axios.post(`${API_URL}/rfqs/${rfqId}/send_to_vendors/`);
+  const response = await axiosClient.post(`/rfqs/${rfqId}/send_to_vendors/`);
   return response.data;
 };
 
 export const fetchRFQQuotes = async (rfqId) => {
-  const response = await axios.get(`${API_URL}/rfqs/${rfqId}/quotes/`);
+  const response = await axiosClient.get(`/rfqs/${rfqId}/quotes/`);
   return response.data;
 };
 
 export const fetchReplenishmentData = async (rfqId) => {
-  const response = await axios.get(`${API_URL}/rfqs/${rfqId}/replenishment_data/`);
+  const response = await axiosClient.get(`/rfqs/${rfqId}/replenishment_data/`);
   return response.data;
 };
 
 // Vendor Quote endpoints
 export const fetchVendorQuotes = async (params = {}) => {
-  const response = await axios.get(`${API_URL}/vendor-quotes/`, { params });
+  const response = await axiosClient.get('/vendor-quotes/', { params });
   return response.data;
 };
 
 export const createVendorQuote = async (quoteData) => {
-  const response = await axios.post(`${API_URL}/vendor-quotes/`, quoteData);
+  const response = await axiosClient.post('/vendor-quotes/', quoteData);
   return response.data;
 };
 
 export const bulkCreateVendorQuotes = async (quotesArray) => {
-  const response = await axios.post(`${API_URL}/vendor-quotes/bulk_create/`, {
+  const response = await axiosClient.post('/vendor-quotes/bulk_create/', {
     quotes: quotesArray
   });
   return response.data;
@@ -64,56 +62,56 @@ export const bulkCreateVendorQuotes = async (quotesArray) => {
 
 // RFQ Vendor endpoints
 export const fetchRFQVendors = async (rfqId) => {
-  const response = await axios.get(`${API_URL}/rfq-vendors/`, {
+  const response = await axiosClient.get('/rfq-vendors/', {
     params: { rfq: rfqId }
   });
   return response.data;
 };
 
 export const markVendorQuoted = async (rfqVendorId) => {
-  const response = await axios.post(`${API_URL}/rfq-vendors/${rfqVendorId}/mark_quoted/`);
+  const response = await axiosClient.post(`/rfq-vendors/${rfqVendorId}/mark_quoted/`);
   return response.data;
 };
 
 export const markVendorDeclined = async (rfqVendorId) => {
-  const response = await axios.post(`${API_URL}/rfq-vendors/${rfqVendorId}/mark_declined/`);
+  const response = await axiosClient.post(`/rfq-vendors/${rfqVendorId}/mark_declined/`);
   return response.data;
 };
 
 // Replenishment endpoints
 export const fetchReplenishments = async (params = {}) => {
-  const response = await axios.get(`${API_URL}/replenishments/`, { params });
+  const response = await axiosClient.get('/replenishments/', { params });
   return response.data;
 };
 
 export const fetchReplenishmentById = async (replenishmentId) => {
-  const response = await axios.get(`${API_URL}/replenishments/${replenishmentId}/`);
+  const response = await axiosClient.get(`/replenishments/${replenishmentId}/`);
   return response.data;
 };
 
 export const createReplenishment = async (replenishmentData) => {
-  const response = await axios.post(`${API_URL}/replenishments/`, replenishmentData);
+  const response = await axiosClient.post('/replenishments/', replenishmentData);
   return response.data;
 };
 
 export const finalizeReplenishment = async (replenishmentId) => {
-  const response = await axios.post(`${API_URL}/replenishments/${replenishmentId}/finalize/`);
+  const response = await axiosClient.post(`/replenishments/${replenishmentId}/finalize/`);
   return response.data;
 };
 
 // Replenishment Line endpoints
 export const createReplenishmentLine = async (lineData) => {
-  const response = await axios.post(`${API_URL}/replenishment-lines/`, lineData);
+  const response = await axiosClient.post('/replenishment-lines/', lineData);
   return response.data;
 };
 
 export const updateReplenishmentLine = async (lineId, lineData) => {
-  const response = await axios.patch(`${API_URL}/replenishment-lines/${lineId}/`, lineData);
+  const response = await axiosClient.patch(`/replenishment-lines/${lineId}/`, lineData);
   return response.data;
 };
 
 export const deleteReplenishmentLine = async (lineId) => {
-  const response = await axios.delete(`${API_URL}/replenishment-lines/${lineId}/`);
+  const response = await axiosClient.delete(`/replenishment-lines/${lineId}/`);
   return response.data;
 };
 
