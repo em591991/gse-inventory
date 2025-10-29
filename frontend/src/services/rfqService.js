@@ -4,7 +4,8 @@ import axiosClient from '../api/axiosClient';
 // RFQ endpoints
 export const fetchRFQs = async () => {
   const response = await axiosClient.get('/rfqs/');
-  return response.data;
+  // Handle both paginated response (with 'results' key) and direct array
+  return response.data.results || response.data;
 };
 
 export const fetchRFQById = async (rfqId) => {
