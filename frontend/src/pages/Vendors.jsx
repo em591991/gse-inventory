@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { fetchVendors, createVendor, updateVendor, deleteVendor } from "../services/vendorService";
 
 function Vendors() {
   const [vendors, setVendors] = useState([]);
@@ -21,15 +22,9 @@ function Vendors() {
 
   // --- Fetch vendors ---
   useEffect(() => {
-    const fetchVendors = async () => {
+    const loadVendors = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/vendors/");
-        if (!response.ok) throw new Error(`Failed to fetch vendors: ${response.status}`);
-        const data = await response.json();
-        
-        // ✅ FIX: Handle paginated response (with 'results' key) or direct array
-        const vendorList = Array.isArray(data) ? data : (data.results || []);
-        
+        const vendorList = await fetchVendors();
         setVendors(vendorList);
         setFiltered(vendorList);
       } catch (err) {
@@ -38,7 +33,7 @@ function Vendors() {
         setLoading(false);
       }
     };
-    fetchVendors();
+    loadVendors();
   }, []);
 
   // --- Search + Sort ---
@@ -57,23 +52,15 @@ function Vendors() {
   // --- Handle Add / Edit Submit ---
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const method = editingVendor ? "PUT" : "POST";
-    const url = editingVendor
-      ? `http://127.0.0.1:8000/api/vendors/${editingVendor.id}/`
-      : "http://127.0.0.1:8000/api/vendors/";
 
     try {
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) throw new Error("Failed to save vendor");
-      const updated = await res.json();
+      const updated = editingVendor
+        ? await updateVendor(editingVendor.vendor_id, formData)
+        : await createVendor(formData);
 
       if (editingVendor) {
         setVendors((prev) =>
-          prev.map((v) => (v.id === updated.id ? updated : v))
+          prev.map((v) => (v.vendor_id === updated.vendor_id ? updated : v))
         );
       } else {
         setVendors((prev) => [...prev, updated]);
@@ -83,21 +70,18 @@ function Vendors() {
       setEditingVendor(null);
       resetForm();
     } catch (err) {
-      alert(err.message);
+      alert(err.message || "Failed to save vendor");
     }
   };
 
   // --- Handle Delete ---
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/vendors/${id}/`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Failed to delete vendor");
-      setVendors((prev) => prev.filter((v) => v.id !== id));
+      await deleteVendor(id);
+      setVendors((prev) => prev.filter((v) => v.vendor_id !== id));
       setConfirmDelete(null);
     } catch (err) {
-      alert(err.message);
+      alert(err.message || "Failed to delete vendor");
     }
   };
 
@@ -129,8 +113,7 @@ function Vendors() {
   return (
     <div className="p-8 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Vendors</h1>
+      <div className="flex items-center justify-end mb-6">
         <button
           onClick={openAddForm}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
