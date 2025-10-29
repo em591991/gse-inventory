@@ -129,10 +129,18 @@ export default function RFQDetail() {
                 Send to Vendors
               </button>
             )}
+            {(rfq.status === 'SENT' || rfq.status === 'QUOTED') && (
+              <button
+                onClick={() => navigate(`/rfqs/${rfqId}/import-quotes`)}
+                className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 shadow-md transition-colors"
+              >
+                Import Quotes
+              </button>
+            )}
             {rfq.status === 'QUOTED' && (
               <button
                 onClick={() => navigate(`/rfqs/${rfqId}/replenishment`)}
-                className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 shadow-md transition-colors"
+                className="px-4 py-2 bg-purple-600 text-white font-medium rounded-md hover:bg-purple-700 shadow-md transition-colors"
               >
                 Create Replenishment
               </button>

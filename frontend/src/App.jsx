@@ -22,6 +22,7 @@ import CreateOrder from "./pages/CreateOrder";
 import RFQs from "./pages/RFQs";
 import CreateRFQ from "./pages/CreateRFQ";
 import RFQDetail from "./pages/RFQDetail";
+import QuoteImport from "./pages/QuoteImport";
 
 export default function App() {
   return (
@@ -208,6 +209,16 @@ export default function App() {
             <ProtectedRoute>
               <Layout>
                 <RFQDetail />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rfqs/:rfqId/import-quotes"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <QuoteImport />
               </Layout>
             </ProtectedRoute>
           }
