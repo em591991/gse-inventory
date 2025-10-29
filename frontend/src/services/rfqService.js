@@ -116,3 +116,24 @@ export const deleteReplenishmentLine = async (lineId) => {
   const response = await axios.delete(`${API_URL}/replenishment-lines/${lineId}/`);
   return response.data;
 };
+
+// Additional helper to create replenishment with lines in one call
+export const createReplenishmentWithLines = async (replenishmentData) => {
+  // First create the replenishment
+  const replenishment = await createReplenishment({
+    rfq: replenishmentData.rfq,
+    status: 'DRAFT'
+  });
+
+  // Then create all lines
+  const linePromises = replenishmentData.lines.map(line =>
+    createReplenishmentLine({
+      ...line,
+      replenishment: replenishment.replenishment_id
+    })
+  );
+
+  await Promise.all(linePromises);
+
+  return replenishment;
+};

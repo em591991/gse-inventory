@@ -23,6 +23,7 @@ import RFQs from "./pages/RFQs";
 import CreateRFQ from "./pages/CreateRFQ";
 import RFQDetail from "./pages/RFQDetail";
 import QuoteImport from "./pages/QuoteImport";
+import ReplenishmentView from "./pages/ReplenishmentView";
 
 export default function App() {
   return (
@@ -219,6 +220,16 @@ export default function App() {
             <ProtectedRoute>
               <Layout>
                 <QuoteImport />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rfqs/:rfqId/replenishment"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ReplenishmentView />
               </Layout>
             </ProtectedRoute>
           }
