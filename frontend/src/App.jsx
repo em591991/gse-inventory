@@ -20,6 +20,8 @@ import AuditLog from "./pages/AuditLog";
 import OrderDetail from './pages/OrderDetail';
 import CreateOrder from "./pages/CreateOrder";
 import RFQs from "./pages/RFQs";
+import CreateRFQ from "./pages/CreateRFQ";
+import RFQDetail from "./pages/RFQDetail";
 
 export default function App() {
   return (
@@ -186,6 +188,26 @@ export default function App() {
             <ProtectedRoute>
               <Layout>
                 <RFQs />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rfqs/create"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CreateRFQ />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rfqs/:rfqId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <RFQDetail />
               </Layout>
             </ProtectedRoute>
           }
