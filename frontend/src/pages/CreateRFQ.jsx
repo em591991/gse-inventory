@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createRFQ } from '../services/rfqService';
-import { fetchItems } from '../services/api';
+import { fetchItems, fetchUOMs } from '../services/itemService';
 import { fetchVendors } from '../services/vendorService';
 
 export default function CreateRFQ() {
