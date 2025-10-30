@@ -203,7 +203,11 @@ class VendorQuoteViewSet(viewsets.ModelViewSet):
         """
         Bulk create quotes from CSV import
         Expects array of quote data
+
+        Also updates VendorItem pricing when quotes are imported.
         """
+        from vendoritems.models import VendorItem, VendorItemPriceHistory
+
         quotes_data = request.data.get('quotes', [])
 
         if not quotes_data:
@@ -214,6 +218,7 @@ class VendorQuoteViewSet(viewsets.ModelViewSet):
 
         created_quotes = []
         errors = []
+        updated_vendor_items = 0
 
         with transaction.atomic():
             for quote_data in quotes_data:
@@ -231,6 +236,31 @@ class VendorQuoteViewSet(viewsets.ModelViewSet):
                         rfq_vendor.status = RFQVendorStatus.QUOTED
                         rfq_vendor.responded_at = timezone.now()
                         rfq_vendor.save()
+
+                    # Update VendorItem pricing with quoted price
+                    if quote.price_each and quote.rfq_line.item:
+                        vendor_item, created = VendorItem.objects.get_or_create(
+                            vendor=quote.vendor,
+                            item=quote.rfq_line.item,
+                            defaults={'unit_price': quote.price_each}
+                        )
+
+                        # If VendorItem already exists and price changed, update it
+                        if not created and vendor_item.unit_price != quote.price_each:
+                            # Create price history record
+                            VendorItemPriceHistory.objects.create(
+                                vendor_item=vendor_item,
+                                unit_price=quote.price_each,
+                                effective_date=timezone.now(),
+                                notes=f"Updated from RFQ quote (RFQ #{quote.rfq_line.rfq.rfq_id})"
+                            )
+
+                            # Update current price
+                            vendor_item.unit_price = quote.price_each
+                            vendor_item.save(update_fields=['unit_price', 'last_updated'])
+                            updated_vendor_items += 1
+                        elif created:
+                            updated_vendor_items += 1
                 else:
                     errors.append({
                         'data': quote_data,
@@ -240,7 +270,8 @@ class VendorQuoteViewSet(viewsets.ModelViewSet):
         return Response({
             'created': len(created_quotes),
             'errors': errors,
-            'quotes': created_quotes
+            'quotes': created_quotes,
+            'vendor_items_updated': updated_vendor_items
         }, status=status.HTTP_201_CREATED if not errors else status.HTTP_207_MULTI_STATUS)
 
 

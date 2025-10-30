@@ -29,6 +29,9 @@ class Item(models.Model):
     g_code = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
     category = models.CharField(max_length=500, blank=True, null=True)
+    subcategory = models.CharField(max_length=500, blank=True, null=True)
+    subcategory2 = models.CharField(max_length=500, blank=True, null=True)
+    subcategory3 = models.CharField(max_length=500, blank=True, null=True)
     manufacturer = models.CharField(max_length=500, blank=True, null=True)
     manufacturer_part_no = models.CharField(max_length=500, blank=True, null=True)
 
@@ -70,6 +73,8 @@ class Item(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=['g_code'], name='idx_item_gcode'),
+            models.Index(fields=['category', 'subcategory', 'subcategory2', 'subcategory3'], name='idx_item_full_cat'),
+            models.Index(fields=['category'], name='idx_item_category'),
         ]
 
     def __str__(self):
@@ -356,7 +361,32 @@ class InventoryLayer(models.Model):
         related_name='inventory_layers',
         db_column='purchase_order_id'
     )
-    
+
+    # Track which vendor/manufacturer supplied this inventory
+    vendor = models.ForeignKey(
+        'vendors.Vendor',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='inventory_layers',
+        db_column='vendor_id',
+        help_text="Vendor who supplied this inventory"
+    )
+
+    manufacturer = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="Actual manufacturer of items in this layer"
+    )
+
+    manufacturer_part_no = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="Manufacturer part number for items in this layer"
+    )
+
     reference = models.CharField(
         max_length=100,
         blank=True,
@@ -374,6 +404,8 @@ class InventoryLayer(models.Model):
             models.Index(fields=['item'], name='idx_layer_item'),
             models.Index(fields=['location'], name='idx_layer_location'),
             models.Index(fields=['received_at'], name='idx_layer_received'),
+            models.Index(fields=['vendor'], name='idx_layer_vendor'),
+            models.Index(fields=['item', 'manufacturer'], name='idx_layer_item_mfr'),
         ]
         verbose_name = 'Inventory Layer'
         verbose_name_plural = 'Inventory Layers'

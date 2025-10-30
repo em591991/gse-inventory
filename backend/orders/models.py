@@ -162,7 +162,21 @@ class OrderLine(models.Model):
     )
     qty = models.DecimalField(max_digits=14, decimal_places=4)
     price_each = models.DecimalField(max_digits=12, decimal_places=4, null=True, blank=True)
-    
+
+    # Expected manufacturer info (for purchase orders)
+    expected_manufacturer = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="Expected manufacturer for this line item"
+    )
+    expected_mfr_part_no = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="Expected manufacturer part number"
+    )
+
     # For transfers - which bins
     from_bin = models.ForeignKey(
         'inventory.Bin', 

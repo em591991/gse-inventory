@@ -7,6 +7,7 @@ import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Items from "./pages/Items";
 import BulkUpload from "./components/BulkUpload";
+import ItemsBulkUpload from "./components/ItemsBulkUpload";
 import Vendors from "./pages/Vendors";
 import Orders from "./pages/Orders";
 import VendorDetail from "./pages/VendorDetail";
@@ -233,11 +234,31 @@ export default function App() {
           }
         />
         <Route
-          path="/upload"
+          path="/upload/items"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ItemsBulkUpload />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/upload/vendor-items"
           element={
             <ProtectedRoute>
               <Layout>
                 <BulkUpload />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/upload"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ItemsBulkUpload />
               </Layout>
             </ProtectedRoute>
           }

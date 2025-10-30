@@ -24,10 +24,7 @@ export default function Login() {
               className="h-24 w-auto"
             />
           </div>
-          <h1 className="text-3xl font-bold text-gsedark mb-2">
-            GSE Inventory System
-          </h1>
-          <p className="text-gray-600">Sign in to continue</p>
+          <p className="text-gray-600 text-lg">Sign in to continue</p>
         </div>
 
         <button

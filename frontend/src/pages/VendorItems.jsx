@@ -20,7 +20,7 @@ function VendorItems() {
   const handleEdit = (item) => setEditingItem(item);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this Vendor Item?")) return;
+    if (!window.confirm("Are you sure you want to delete this vendor pricing entry?")) return;
     try {
       await axiosClient.delete(`vendoritems/${id}/`);
       refetch();
@@ -32,8 +32,8 @@ function VendorItems() {
   // --------------------
   // Data handling
   // --------------------
-  if (isLoading) return <p className="p-6">Loading Vendor Items...</p>;
-  if (error) return <p className="p-6 text-red-600">Error loading Vendor Items.</p>;
+  if (isLoading) return <p className="p-6">Loading Vendor Pricing...</p>;
+  if (error) return <p className="p-6 text-red-600">Error loading Vendor Pricing.</p>;
 
   // For paginated API responses
   const items = data?.results || [];
@@ -107,7 +107,7 @@ function VendorItems() {
           {items.length === 0 ? (
             <tr>
               <td colSpan="5" className="p-4 text-center text-gray-500">
-                No Vendor Items found.
+                No vendor pricing found. Import vendor pricing to get started.
               </td>
             </tr>
           ) : (

@@ -22,7 +22,7 @@ export default function Layout({ children }) {
       { path: "/items", label: "Inventory" },
       { path: "/locations", label: "Locations" },
       { path: "/vendors", label: "Vendors" },
-      { path: "/vendor-items", label: "Vendor Items" },
+      { path: "/vendor-items", label: "Vendor Pricing" },
       { path: "/orders", label: "Orders" },
       { path: "/rfqs", label: "RFQs" },
       { path: "/shipments", label: "Shipments" },
@@ -39,6 +39,8 @@ export default function Layout({ children }) {
       { path: "/admin", label: "Dashboard" },
       { path: "/users", label: "Users" },
       { path: "/audit", label: "Audit Log" },
+      { path: "/upload/items", label: "Import Items" },
+      { path: "/upload/vendor-items", label: "Import Vendor Pricing" },
     ],
     Info: [
       { path: "/info", label: "Dashboard" },
