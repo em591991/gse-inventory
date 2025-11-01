@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import UserMenu from "./UserMenu";
 
@@ -20,6 +20,7 @@ export default function Layout({ children }) {
   const sectionNavItems = {
     Logistics: [
       { path: "/items", label: "Inventory" },
+      { path: "/stock", label: "Stock Levels" },
       { path: "/locations", label: "Locations" },
       { path: "/vendors", label: "Vendors" },
       { path: "/vendor-items", label: "Vendor Pricing" },
@@ -30,38 +31,66 @@ export default function Layout({ children }) {
       { path: "/vehicles", label: "Vehicles" },
     ],
     Sales: [
-      { path: "/sales", label: "Dashboard" },
+      { path: "/sales/schedule", label: "Schedule", comingSoon: true },
+      { path: "/sales/customers", label: "Customers", comingSoon: true },
+      { path: "/sales/estimates", label: "Estimates", comingSoon: true },
+      { path: "/sales/memberships", label: "Memberships", comingSoon: true },
+      { path: "/sales/tools", label: "Tools", comingSoon: true },
     ],
     Operations: [
-      { path: "/operations", label: "Dashboard" },
+      { path: "/operations/schedule", label: "Schedule", comingSoon: true },
+      { path: "/operations/customers", label: "Customers", comingSoon: true },
+      { path: "/operations/jobs", label: "Jobs", comingSoon: true },
+      { path: "/operations/work-orders", label: "Work Orders", comingSoon: true },
+      { path: "/operations/invoices", label: "Invoices", comingSoon: true },
     ],
     Admin: [
-      { path: "/admin", label: "Dashboard" },
+      { path: "/reporting", label: "Reporting", comingSoon: true },
+      { path: "/eos", label: "EOS", comingSoon: true },
+      { path: "/human-resources", label: "Human Resources", comingSoon: true },
+      { path: "/accounting", label: "Accounting", comingSoon: true },
       { path: "/users", label: "Users" },
       { path: "/audit", label: "Audit Log" },
-      { path: "/upload/items", label: "Import Items" },
-      { path: "/upload/vendor-items", label: "Import Vendor Pricing" },
+      { path: "/import", label: "Import Hub" },
     ],
     Info: [
-      { path: "/info", label: "Dashboard" },
+      { path: "/handbook", label: "Employee Handbook" },
     ],
+  };
+
+  // Dashboard routes for each section
+  const sectionDashboards = {
+    Logistics: "/logistics",
+    Sales: "/sales",
+    Operations: "/operations",
+    Admin: "/admin",
+    Info: "/info",
   };
 
   // Determine which section should be active based on current route
   const getCurrentSection = () => {
+    // First check if we're on a dashboard route
+    for (const [section, dashboardPath] of Object.entries(sectionDashboards)) {
+      if (location.pathname === dashboardPath) {
+        return section;
+      }
+    }
+
+    // Then check if we're on a sub-page route
     for (const [section, items] of Object.entries(sectionNavItems)) {
       if (items.some(item => location.pathname.startsWith(item.path))) {
         return section;
       }
     }
+
     return "Logistics"; // Default
   };
 
-  // Get active section (either from state or auto-detect from route)
-  const currentSection = getCurrentSection();
-  if (currentSection !== activeSection) {
+  // Update active section when route changes
+  useEffect(() => {
+    const currentSection = getCurrentSection();
     setActiveSection(currentSection);
-  }
+  }, [location.pathname]);
 
   const isActive = (path) => {
     if (path === "/") {
@@ -72,17 +101,17 @@ export default function Layout({ children }) {
 
   const handleSectionClick = (sectionId) => {
     setActiveSection(sectionId);
-    // Navigate to first page in that section if it has pages
-    const pages = sectionNavItems[sectionId];
-    if (pages && pages.length > 0) {
-      navigate(pages[0].path);
+    // Navigate to dashboard for this section
+    const dashboardPath = sectionDashboards[sectionId];
+    if (dashboardPath) {
+      navigate(dashboardPath);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Navigation Bar */}
-      <nav className="bg-white shadow-lg border-b-4 border-gseblue">
+      {/* Top Navigation Bar - Sticky */}
+      <nav className="sticky top-0 z-50 bg-white shadow-lg border-b-4 border-gseblue">
         <div className="px-6 py-3">
           <div className="flex items-center justify-between">
             {/* Left side: Logo + Main Navigation Sections */}
@@ -118,17 +147,27 @@ export default function Layout({ children }) {
           <div className="px-6 py-0 bg-gsegray border-t border-gray-200">
             <div className="flex gap-1 overflow-x-auto">
               {sectionNavItems[activeSection].map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition border-b-3 ${
-                    isActive(item.path)
-                      ? "bg-white text-gseblue border-b-4 border-gseblue"
-                      : "text-gray-700 hover:bg-white hover:text-gseblue border-b-4 border-transparent"
-                  }`}
-                >
-                  {item.label}
-                </Link>
+                item.comingSoon ? (
+                  <div
+                    key={item.path}
+                    className="px-4 py-3 text-sm font-medium whitespace-nowrap text-gray-400 cursor-not-allowed border-b-4 border-transparent"
+                    title="Coming Soon"
+                  >
+                    {item.label}
+                  </div>
+                ) : (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition border-b-3 ${
+                      isActive(item.path)
+                        ? "bg-white text-gseblue border-b-4 border-gseblue"
+                        : "text-gray-700 hover:bg-white hover:text-gseblue border-b-4 border-transparent"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                )
               ))}
             </div>
           </div>

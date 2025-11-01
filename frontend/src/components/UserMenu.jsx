@@ -38,7 +38,7 @@ export default function UserMenu() {
         className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
       >
         {/* Avatar */}
-        <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
+        <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-semibold">
           {initials}
         </div>
         
@@ -82,7 +82,7 @@ export default function UserMenu() {
                 {user.roles.map((role) => (
                   <span
                     key={role}
-                    className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
+                    className="px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full"
                   >
                     {role}
                   </span>

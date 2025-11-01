@@ -1,6 +1,40 @@
 import uuid
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.hashers import make_password, check_password
+
+
+class UserManager(models.Manager):
+    """Custom manager for User model"""
+
+    def get_by_natural_key(self, email):
+        """Get user by email (natural key)"""
+        return self.get(email=email)
+
+    def create_user(self, email, password=None, **extra_fields):
+        """Create and save a regular user"""
+        if not email:
+            raise ValueError('Email must be set')
+        email = email.lower().strip()  # Normalize email
+        user = self.model(email=email, **extra_fields)
+        if password:
+            user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        """Create and save a superuser"""
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('status', 'ACTIVE')
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
 
 
 class UserStatus(models.TextChoices):
@@ -34,6 +68,7 @@ class User(models.Model):
         related_name='user_accounts'
     )
     email = models.EmailField(max_length=320, unique=True)
+    password = models.CharField(max_length=255, blank=True, default='')  # Hashed password
     display_name = models.CharField(max_length=255, blank=True)
     status = models.CharField(
         max_length=20,
@@ -47,6 +82,8 @@ class User(models.Model):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
+    objects = UserManager()  # Custom manager
+
     USERNAME_FIELD = 'email'  # Use email as the username
     REQUIRED_FIELDS = []  # Email is already required as USERNAME_FIELD
 
@@ -59,7 +96,11 @@ class User(models.Model):
 
     def __str__(self):
         return self.email
-    
+
+    def natural_key(self):
+        """Return the natural key for this user (email)"""
+        return (self.email,)
+
     @property
     def id(self):
         """Alias for user_id to work with Django's authentication system"""
@@ -79,6 +120,22 @@ class User(models.Model):
     def is_anonymous(self):
         """Always return False for authenticated users"""
         return False
+
+    def set_password(self, raw_password):
+        """Set password - stores hashed version"""
+        self.password = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        """Check if the provided password matches the stored hash"""
+        return check_password(raw_password, self.password)
+
+    def has_perm(self, perm, obj=None):
+        """Check if user has a specific permission (superuser has all)"""
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        """Check if user has permissions to view the app (superuser has all)"""
+        return self.is_superuser
 
 
 class OAuthIdentity(models.Model):

@@ -97,8 +97,7 @@ export default function Locations() {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Locations</h1>
+      <div className="flex justify-end items-center mb-6">
         <button
           onClick={() => {
             setShowForm(true);

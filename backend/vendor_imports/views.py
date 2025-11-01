@@ -4,6 +4,7 @@ from drf_spectacular.utils import extend_schema
 import csv
 import io
 from django.db import transaction
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -213,3 +214,84 @@ class ItemUploadView(APIView):
             "updated": updated,
             "errors": errors,
         })
+
+
+@extend_schema(
+    tags=["Item CSV Export"],
+    summary="Export all items to CSV",
+    description="Download all items from the database as a CSV file",
+)
+class ItemExportView(APIView):
+    """
+    GET /api/items/export/
+    Exports all items to CSV format
+    """
+
+    def get(self, request, *args, **kwargs):
+        # Create CSV response
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="items_export.csv"'
+
+        writer = csv.writer(response)
+
+        # Write header
+        writer.writerow([
+            'g_code', 'item_name', 'description', 'category', 'subcategory',
+            'subcategory2', 'subcategory3', 'manufacturer', 'manufacturer_part_no',
+            'default_uom'
+        ])
+
+        # Write data rows
+        items = Item.objects.all().select_related('default_uom')
+        for item in items:
+            writer.writerow([
+                item.g_code,
+                item.item_name,
+                item.description or '',
+                item.category or '',
+                item.subcategory or '',
+                item.subcategory2 or '',
+                item.subcategory3 or '',
+                item.manufacturer or '',
+                item.manufacturer_part_no or '',
+                item.default_uom.uom_code if item.default_uom else '',
+            ])
+
+        return response
+
+
+@extend_schema(
+    tags=["Vendor CSV Export"],
+    summary="Export all vendor items to CSV",
+    description="Download all vendor item pricing from the database as a CSV file",
+)
+class VendorItemExportView(APIView):
+    """
+    GET /api/vendor-items/export/
+    Exports all vendor items to CSV format
+    """
+
+    def get(self, request, *args, **kwargs):
+        # Create CSV response
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="vendor_items_export.csv"'
+
+        writer = csv.writer(response)
+
+        # Write header
+        writer.writerow([
+            'vendor_name', 'item_sku', 'price', 'vendor_uom', 'lead_time_days'
+        ])
+
+        # Write data rows
+        vendor_items = VendorItem.objects.all().select_related('vendor', 'item', 'vendor_uom')
+        for vi in vendor_items:
+            writer.writerow([
+                vi.vendor.name,
+                vi.item.g_code,
+                vi.price,
+                vi.vendor_uom.uom_code if vi.vendor_uom else '',
+                vi.lead_time_days,
+            ])
+
+        return response

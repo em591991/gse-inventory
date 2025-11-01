@@ -2,7 +2,8 @@ from django.shortcuts import render
 
 # Create your views here.
 from rest_framework import viewsets
-from .models import Customer, Job
+from customers.models import Customer
+from .models import Job
 from .serializers import CustomerSerializer, JobSerializer
 
 

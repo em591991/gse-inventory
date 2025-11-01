@@ -2,6 +2,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import ItemViewSet, UnitOfMeasureViewSet
+from .stock_views import StockLevelsView
 from . import api_views
 
 app_name = 'inventory'
@@ -12,23 +13,26 @@ router.register(r'items', ItemViewSet, basename='item')
 router.register(r'units', UnitOfMeasureViewSet, basename='unitofmeasure')
 
 urlpatterns = [
+    # Stock Levels
+    path('stock-levels/', StockLevelsView.as_view(), name='stock_levels'),
+
     # FIFO Inventory Management Endpoints
     path('receive/', api_views.receive_inventory, name='receive_inventory'),
-    path('available/<uuid:item_id>/<uuid:location_id>/', 
-         api_views.get_available_quantity, 
+    path('available/<uuid:item_id>/<uuid:location_id>/',
+         api_views.get_available_quantity,
          name='get_available_quantity'),
-    path('layers/<uuid:item_id>/<uuid:location_id>/', 
-         api_views.get_inventory_layers, 
+    path('layers/<uuid:item_id>/<uuid:location_id>/',
+         api_views.get_inventory_layers,
          name='get_inventory_layers'),
     path('allocate/', api_views.allocate_inventory, name='allocate_inventory'),
-    path('estimate-cost/', 
-         api_views.estimate_allocation_cost, 
+    path('estimate-cost/',
+         api_views.estimate_allocation_cost,
          name='estimate_allocation_cost'),
-    path('pending-allocations/', 
-         api_views.get_pending_allocations, 
+    path('pending-allocations/',
+         api_views.get_pending_allocations,
          name='get_pending_allocations'),
     path('transfer/', api_views.transfer_inventory, name='transfer_inventory'),
-    
+
     # Router URLs (items, units)
     path('', include(router.urls)),
 ]

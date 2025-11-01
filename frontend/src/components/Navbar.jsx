@@ -4,14 +4,15 @@ function Navbar() {
   const location = useLocation();
 
   const linkClass = (path) =>
-    `px-3 py-2 rounded ${
+    `px-3 py-2 rounded font-medium ${
       location.pathname === path
-        ? "bg-blue-600 text-white"
-        : "text-gray-700 hover:bg-blue-100"
+        ? "bg-primary text-white"
+        : "text-gray-700 hover:bg-primary hover:text-white"
     }`;
 
   return (
-    <nav className="bg-gseblue text-white p-3 flex space-x-3 shadow-md">
+    <nav className="bg-white border-b-4 border-primary p-3 flex items-center space-x-3 shadow-md">
+      <img src="/logo.png" alt="GSE Integrated" className="h-10 mr-4" />
       <Link to="/" className={linkClass("/")}>
         Home
       </Link>

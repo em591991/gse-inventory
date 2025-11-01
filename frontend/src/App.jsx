@@ -6,8 +6,10 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Items from "./pages/Items";
+import Stock from "./pages/Stock";
 import BulkUpload from "./components/BulkUpload";
 import ItemsBulkUpload from "./components/ItemsBulkUpload";
+import ImportHub from "./pages/ImportHub";
 import Vendors from "./pages/Vendors";
 import Orders from "./pages/Orders";
 import VendorDetail from "./pages/VendorDetail";
@@ -30,6 +32,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import SalesDashboard from "./pages/SalesDashboard";
 import OperationsDashboard from "./pages/OperationsDashboard";
 import InfoDashboard from "./pages/InfoDashboard";
+import EmployeeHandbook from "./pages/EmployeeHandbook";
 
 export default function App() {
   return (
@@ -109,6 +112,16 @@ export default function App() {
             <ProtectedRoute>
               <Layout>
                 <Items />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stock"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Stock />
               </Layout>
             </ProtectedRoute>
           }
@@ -234,6 +247,16 @@ export default function App() {
           }
         />
         <Route
+          path="/import"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ImportHub />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/upload/items"
           element={
             <ProtectedRoute>
@@ -309,6 +332,16 @@ export default function App() {
             <ProtectedRoute>
               <Layout>
                 <ReplenishmentView />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/handbook"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <EmployeeHandbook />
               </Layout>
             </ProtectedRoute>
           }

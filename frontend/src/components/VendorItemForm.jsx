@@ -159,7 +159,7 @@ function VendorItemForm({ onSuccess, editingItem, clearEdit }) {
       <button
         type="submit"
         disabled={loading}
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+        className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition"
       >
         {loading ? "Saving..." : "Save Vendor Item"}
       </button>

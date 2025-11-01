@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSE Integrated Employee Handbook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --gse-green: #115740;
+            --gse-gray: #999999;
+            --gse-light-green: #E8F5E9;
+            --nav-width: 280px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: var(--gse-green);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        /* Navigation Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--nav-width);
+            height: 100vh;
+            background: #0D6A36;
+            color: white;
+            padding: 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            text-align: center;
+            background: #0D6A36;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header img {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 15px;
+            filter: brightness(1.1);
+        }
+
+        .sidebar-header h1 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+            color: rgba(255,255,255,0.95);
+        }
+
+        nav {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            margin: 0;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            border-left-color: white;
+        }
+
+        .nav-link.active {
+            background: rgba(255,255,255,0.15);
+            border-left-color: white;
+            font-weight: 600;
+        }
+
+        .sub-nav {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .nav-parent.expanded .sub-nav {
+            max-height: 500px;
+        }
+
+        .sub-nav .nav-link {
+            padding-left: 40px;
+            font-size: 13px;
+        }
+
+        .parent-link {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .toggle {
+            position: absolute;
+            right: 20px;
+            transition: transform 0.3s ease;
+            font-size: 12px;
+        }
+
+        .nav-parent.expanded .toggle {
+            transform: rotate(-180deg);
+        }
+
+        /* Main Content */
+        .content {
+            margin-left: var(--nav-width);
+            padding: 40px 60px;
+            max-width: 1400px;
+        }
+
+        .hero {
+            position: sticky;
+            top: 0;
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 3px solid var(--gse-green);
+            margin-bottom: 40px;
+            background: #fff;
+            z-index: 100;
+        }
+
+        .tagline {
+            color: var(--gse-green);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .hero h1 {
+            font-size: 32px;
+            color: var(--gse-green);
+            margin-bottom: 10px;
+        }
+
+        .version {
+            color: var(--gse-gray);
+            font-size: 14px;
+        }
+
+        section {
+            margin-bottom: 60px;
+            scroll-margin-top: 20px;
+        }
+
+        section.subsection {
+            margin-left: 40px;
+            padding-left: 20px;
+            border-left: 3px solid var(--gse-light-green);
+        }
+
+        h2 {
+            color: var(--gse-green);
+            font-size: 32px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--gse-green);
+        }
+
+        h2.subsection-title {
+            font-size: 26px;
+            border-bottom: 1px solid var(--gse-light-green);
+        }
+
+        .subsection-content p,
+        .subsection-content ul,
+        .subsection-content ol,
+        .subsection-content h3,
+        .subsection-content h4 {
+            font-size: 15px;
+        }
+
+        .subsection-content h3 {
+            font-size: 20px;
+        }
+
+        .subsection-content h4 {
+            font-size: 18px;
+        }
+
+        .hr-content p,
+        .hr-content ul,
+        .hr-content ol,
+        .hr-content h3,
+        .hr-content h4 {
+            font-size: 15px;
+        }
+
+        .hr-content h3 {
+            font-size: 20px;
+        }
+
+        .hr-content h4 {
+            font-size: 18px;
+        }
+
+        .hr-policies {
+            margin-bottom: 60px;
+        }
+
+        .hr-policies .hr-content {
+            margin-left: 40px;
+            padding-left: 20px;
+            border-left: 3px solid var(--gse-light-green);
+        }
+
+        h3 {
+            color: var(--gse-green);
+            font-size: 24px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        h4 {
+            color: var(--gse-green);
+            font-size: 20px;
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+            line-height: 1.7;
+        }
+
+        strong {
+            color: var(--gse-green);
+        }
+
+        .highlight-box {
+            background: var(--gse-light-green);
+            border-left: 4px solid var(--gse-green);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        ul li, ol li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+
+        /* Print Styles */
+        @media print {
+            .sidebar,
+            .menu-toggle {
+                display: none !important;
+            }
+
+            .content {
+                margin-left: 0 !important;
+                padding: 20px !important;
+            }
+
+            .hero {
+                position: relative !important;
+                border-bottom: 2px solid var(--gse-green);
+            }
+
+            section {
+                page-break-inside: avoid;
+            }
+
+            h2, h3, h4 {
+                page-break-after: avoid;
+            }
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 80px 20px 40px;
+            }
+
+            .hero {
+                top: 0;
+                padding: 20px 0;
+            }
+
+            .tagline {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            .hero h1 {
+                font-size: 24px;
+            }
+
+            .version {
+                font-size: 13px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            h2.subsection-title {
+                font-size: 20px;
+            }
+
+            h3 {
+                font-size: 20px;
+            }
+
+            section.subsection {
+                margin-left: 20px;
+                padding-left: 15px;
+            }
+
+            .subsection-content p,
+            .subsection-content ul,
+            .subsection-content ol {
+                font-size: 14px;
+            }
+
+            .subsection-content h3 {
+                font-size: 18px;
+            }
+
+            .subsection-content h4 {
+                font-size: 16px;
+            }
+
+            .hr-content p,
+            .hr-content ul,
+            .hr-content ol {
+                font-size: 14px;
+            }
+
+            .hr-content h3 {
+                font-size: 18px;
+            }
+
+            .hr-content h4 {
+                font-size: 16px;
+            }
+
+            .hr-policies .hr-content {
+                margin-left: 20px;
+                padding-left: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle">☰ Menu</button>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="data:image/png;base64,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" alt="GSE Integrated Logo">
+            <h1>Employee Handbook</h1>
+        </div>
+        <nav>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="#section-1" class="nav-link">Handbook Overview</a></li>
+                <li class="nav-item"><a href="#section-2" class="nav-link">Employee Acknowledgement</a></li>
+                <li class="nav-item nav-parent">
+                    <a href="#section-3" class="nav-link parent-link">Company Structure <span class="toggle">▼</span></a>
+                    <ul class="sub-nav">
+                        <li><a href="#section-3a" class="nav-link">Company History & Scope</a></li>
+                        <li><a href="#section-4" class="nav-link">Core Values</a></li>
+                        <li><a href="#section-5" class="nav-link">Job Roles</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item nav-parent">
+                    <a href="#section-6" class="nav-link parent-link">Benefits <span class="toggle">▼</span></a>
+                    <ul class="sub-nav">
+                        <li><a href="#section-6a" class="nav-link">Paid Time Off (PTO) & Leave Policies</a></li>
+                        <li><a href="#section-6b" class="nav-link">Insurance Options</a></li>
+                        <li><a href="#section-6c" class="nav-link">Company Sponsored Retirement Plan</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item nav-parent">
+                    <a href="#section-7" class="nav-link parent-link">Hiring & Separation <span class="toggle">▼</span></a>
+                    <ul class="sub-nav">
+                        <li><a href="#section-7a" class="nav-link">Onboarding New Hires</a></li>
+                        <li><a href="#section-7b" class="nav-link">Resignation & Termination</a></li>
+                        <li><a href="#section-7c" class="nav-link">Exit Interview</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item nav-parent">
+                    <a href="#section-8" class="nav-link parent-link">Attendance, Timekeeping, & Compensation <span class="toggle">▼</span></a>
+                    <ul class="sub-nav">
+                        <li><a href="#section-8a" class="nav-link">Working Hours</a></li>
+                        <li><a href="#section-8b" class="nav-link">Employee Timesheets</a></li>
+                        <li><a href="#section-8c" class="nav-link">Lunch Policy</a></li>
+                        <li><a href="#section-8d" class="nav-link">Overtime</a></li>
+                        <li><a href="#section-8e" class="nav-link">Unforeseen Absences</a></li>
+                        <li><a href="#section-8f" class="nav-link">Severe Weather & Emergencies</a></li>
+                        <li><a href="#section-8g" class="nav-link">Remote Work</a></li>
+                        <li><a href="#section-8h" class="nav-link">Time-Off Requests</a></li>
+                        <li><a href="#section-8i" class="nav-link">Payroll</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item nav-parent">
+                    <a href="#section-9" class="nav-link parent-link">Human Resources <span class="toggle">▼</span></a>
+                    <ul class="sub-nav">
+                        <li><a href="#section-9a" class="nav-link">Employee Conduct Scorecard</a></li>
+                        <li><a href="#section-10" class="nav-link">Employee & Customer Relations</a></li>
+                        <li><a href="#section-11" class="nav-link">Outside Employment</a></li>
+                        <li><a href="#section-12" class="nav-link">Equal Opportunity Employment</a></li>
+                        <li><a href="#section-13" class="nav-link">Harassment & Discrimination</a></li>
+                        <li><a href="#section-14" class="nav-link">Workplace Health & Safety</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item nav-parent">
+                    <a href="#section-15" class="nav-link parent-link">Company Policies <span class="toggle">▼</span></a>
+                    <ul class="sub-nav">
+                        <li><a href="#section-15a" class="nav-link">Dress Code</a></li>
+                        <li><a href="#section-15b" class="nav-link">Vehicle Policy</a></li>
+                        <li><a href="#section-15c" class="nav-link">Technician Tool Policy</a></li>
+                        <li><a href="#section-15d" class="nav-link">Employee Damage Policy</a></li>
+                        <li><a href="#section-15e" class="nav-link">Company Expense Accounts</a></li>
+                        <li><a href="#section-15f" class="nav-link">Reimbursement of Expenses</a></li>
+                        <li><a href="#section-15g" class="nav-link">Non-Compete & Non-Solicitation</a></li>
+                        <li><a href="#section-15h" class="nav-link">Substance Abuse</a></li>
+                        <li><a href="#section-15i" class="nav-link">Weapons and Firearms</a></li>
+                        <li><a href="#section-15j" class="nav-link">Pet Policy</a></li>
+                        <li><a href="#section-15k" class="nav-link">Technology & Data Security</a></li>
+                        <li><a href="#section-15l" class="nav-link">Internet Acceptable Use Policy</a></li>
+                        <li><a href="#section-15m" class="nav-link">Social Media Policy</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <div class="hero">
+            <p class="tagline">"Powering Lifelong Trust"</p>
+            <h1>Employee Handbook</h1>
+            <p class="version">Version 1.0: Nov. 2025</p>
+        </div>
+
+        <!-- Section 1: Handbook Overview -->
+        <section id="section-1">
+            <h2>Handbook Overview</h2>
+            <p>The GSE Integrated Employee Handbook is an assembly of company information, benefits, and policies relevant to all employees. It is intended as a guide to assist you in becoming familiar with the various privileges and obligations of your employment. We recommend that all new employees familiarize themselves with the material in this handbook, and that long-term employees review this occasionally to stay current on company policy. While this handbook covers a large breadth of information, it does not cover every facet of working for GSE Integrated. If you have additional questions, please contact management for clarification.</p>
+        </section>
+
+        <!-- Section 2: Employee Acknowledgement -->
+        <section id="section-2">
+            <h2>Employee Acknowledgement</h2>
+            <p>You understand and agree that it is your responsibility to read fully, understand the policies, and follow the policies set forth in the handbook. You acknowledge that if you have any questions, comments, or concerns related to your employment or the policies listed, you should discuss these matters with management/ownership.</p>
+            <p>The language in this handbook is not a contract between GSE Integrated and the employee. Employment is "at will" and can be terminated with or without cause, for any reason or no reason, and with or without notice, at any time by the employee or by the company. The policies and procedures in this handbook are subject to change at any time with or without notice.</p>
+        </section>
+
+        <!-- Section 3: Company Structure -->
+        <section id="section-3">
+            <h2>Company Structure</h2>
+        </section>
+
+        <!-- Section 3a: Company History & Scope -->
+        <section id="section-3a" class="subsection">
+            <h2 class="subsection-title">Company History & Scope</h2>
+            <div class="subsection-content">
+                <p>Gulf States Electric (GSE) Integrated, a locally owned and operated electrical contractor, was founded in 2009 by Erik and Shannon Mollerberg. The GSE Integrated headquarters has been located on Jones Creek Road since moving from College Drive in 2019. Our numbers have grown to over thirty full-time employees.</p>
+                <p>Originally outfitted for strictly home wiring, GSE has grown in its scope of work to include other departments. These include residential electrical services, new home build wiring, remodels, standby generators, low voltage & alarm systems, and commercial work. Our home wiring departments cover both production homes and custom-built homes. It is GSE's goal to provide customers with a "one-stop-shop" experience where they can receive excellent care for all these electrical services under one name. Our aim is to be the premier electrical company in our service area, with the care and attention of a small business, but with the efficiency and service of a larger company. We feel this is best implemented by each of our employees representing our company's Core Values to a high degree, day in and day out.</p>
+            </div>
+        </section>
+
+        <!-- Section 4: Core Values -->
+        <section id="section-4" class="subsection">
+            <h2 class="subsection-title">Core Values</h2>
+            <div class="subsection-content">
+                <p>GSE Integrated has five core values which embody the qualities that are important for all employees. All team members should exemplify these to a high level and measure themselves and others against them. Constantly growing with these values is vital.</p>
+                
+                <h3>White-Glove Experience</h3>
+                <p>Whether you are meeting with a customer, contractor, or vendor, every person you interact with while wearing a company uniform should be handled the same way – with care and professionalism. Ensure everyone has an exceptional experience with our company by going above and beyond. Help preserve our reputation as a premier electrical company with unmatched service.</p>
+                
+                <h3>Absolute Integrity</h3>
+                <p>Be honest, be loyal, be dependable and reliable, regardless of the situation. Be helpful to everyone.</p>
+                
+                <h3>Thrive with the Hive</h3>
+                <p>Always keep the company in mind and contribute to the bigger picture. Everything you do for GSE Integrated affects everyone else in the company as well – what is good for the hive is good for the bee. Be willing to give or seek help. Hold fellow employees accountable when necessary.</p>
+                
+                <h3>Evolve or Dissolve</h3>
+                <p>Commit to constant individual and company improvement. Be forward-thinking, never stop growing, and always look for different ways to approach a problem.</p>
+                
+                <h3>Relentless</h3>
+                <p>Be committed, be consistent, and be passionate about what you do. Demand perfection in your work. If you start something, finish it. Be willing to tackle tough obstacles to achieve your goals.</p>
+            </div>
+        </section>
+
+        <!-- Section 5: Job Roles -->
+        <section id="section-5" class="subsection">
+            <h2 class="subsection-title">Job Roles</h2>
+            <div class="subsection-content">
+                <p>Every employee at GSE Integrated will fall under an assigned job role. These roles outline job duties, expectations, and goals for employees seeking to perform their role at a higher level. Some obligations may require more time than others, and some may require ongoing development, especially if the employee is new to a role, but all are necessary to keep overall company workflows running smoothly. These job roles are also outlined in the company Organizational chart, which is a hierarchy tree that shows the employees who you will work with every day, as well as the direct report infrastructure.</p>
+            </div>
+        </section>
+
+        <!-- Section 6: Benefits -->
+        <section id="section-6">
+            <h2>Benefits</h2>
+        </section>
+
+        <!-- Section 6a: Paid Time Off & Leave Policies -->
+        <section id="section-6a" class="subsection">
+            <h2 class="subsection-title">Paid Time Off (PTO) & Leave Policies</h2>
+            <div class="subsection-content">
+            
+            <h4>Paid Vacation</h4>
+            <p>Full-time, permanent employees will be eligible for the following PTO allowances:</p>
+            <ul>
+                <li>One week PTO (40 hours) at one year of employment</li>
+                <li>Two weeks PTO (80 hours) at two years</li>
+                <li>Three weeks PTO (120 hours) at five years</li>
+                <li>Four weeks PTO (160 hours) at ten years</li>
+            </ul>
+            <p>Vacation hours will be given annually on the employee's anniversary date. Employment must be continuous, and the accrual of PTO will restart if it is interrupted. Any unused PTO time will be paid out on the employee's anniversary date and replaced by the appropriate amount for the next year.</p>
+            
+            <h4>Paid Holidays</h4>
+            <p>After one (1) year of employment, employees will be paid 8 regular time hours per each of the following holidays:</p>
+            <ul>
+                <li>New Year's Day (January 1st)</li>
+                <li>Good Friday (Friday before Easter Sunday)</li>
+                <li>Memorial Day (Last Monday of May)</li>
+                <li>July 4th</li>
+                <li>Labor Day (First Monday of September)</li>
+                <li>Thanksgiving Day (Fourth Thursday in November)</li>
+                <li>Christmas Day (December 25th)</li>
+            </ul>
+            <p>If a holiday falls on a weekend, GSE Integrated will observe said holiday on the previous Friday or following Monday at the discretion of management.</p>
+            
+            <h4>Unpaid Leave</h4>
+            <p>If an employee does not have vacation hours but would like to be scheduled off for a time, this is still possible. A time off request form should be filled out, and upon approval, the employee may take off the specified days without pay or penalty.</p>
+            
+            <h4>Bereavement Pay</h4>
+            <p>Following a death in the family, employees may receive up to three days of paid leave. This applies to immediate family members only including the following: spouse or domestic partner, mother, father, stepparents, children, stepchildren, siblings, stepsiblings, or grandparents. The allotted bereavement days can be continuous or spread out as needed to accommodate grieving, arrangements, and the funeral. All bereavement days must be taken within 14 days of the family member's passing.</p>
+            
+            <h4>Maternity & Paternity Leave</h4>
+            <p>GSE Integrated is committed to supporting our employees in their personal lives and easing the burden new parents may face. All employees who have been employed for one year are eligible for five days of paid leave following the birth of their child. This week may be taken all at once or on non-consecutive days, but they must all be used within four weeks of the child's birth.</p>
+            
+            <h4>Jury Duty & Military Leave</h4>
+            <p>If you are required to report to jury duty or a military arrangement, these days will be excused without pay. Your job is protected during this time, and you will not be considered for replacement due to extended leave. In some situations, employees may be able to perform their job duties outside of their time spent on these obligations and may receive full or partial compensation. This will be determined by senior management and communicated beforehand.</p>
+            
+            <h4>Extended Personal Leave</h4>
+            <p>Employees who have been with GSE Integrated for at least one year may apply for a personal leave of absence for up to eight weeks. Extended leaves are unpaid, though accrued vacation time may be used. When considering a request for a personal leave, GSE Integrated will consider factors such as the employee's position, the employee's length of service, the employee's performance record including attendance, the purpose of the leave, the needs of the department in which the employee works, the effect of the leave on other employees, and general business needs. Medical benefits will continue on the same basis as if the employee were actively working.</p>
+            <p>GSE Integrated cannot guarantee reinstatement upon return from an extended leave. GSE Integrated will, however, make a reasonable effort to place the employee in an available position for which he or she is qualified. If such a position is not available, then the employee's employment will terminate. Even in that event, the employee may later apply for reemployment.</p>
+            <p>Employees who fail to report to work after an approved leave of absence are deemed to have voluntarily resigned. When an approved leave has been exhausted, the employee may request additional leave. Ownership must approve all extended leave.</p>
+            </div>
+        </section>
+
+        <!-- Section 6b: Insurance Options -->
+        <section id="section-6b" class="subsection">
+            <h2 class="subsection-title">Insurance Options</h2>
+            <div class="subsection-content">
+            <p>GSE Integrated will pay half of the health insurance premium (health insurance plan provided by GSE Integrated) for each of its employees. Any additional dependents or payments under the policy will be the full responsibility of the employee. Anyone wishing to decline health insurance coverage will need to sign an opt-out form. Vision and dental insurance are available through the company and are also the financial responsibility of the employee. A $25,000 life insurance policy is provided to all employees free of charge.</p>
+            </div>
+        </section>
+
+        <!-- Section 6c: Company Sponsored Retirement Plan -->
+        <section id="section-6c" class="subsection">
+            <h2 class="subsection-title">Company Sponsored Retirement Plan</h2>
+            <div class="subsection-content">
+            <p>GSE Integrated maintains a 401k retirement plan available to all full-time employees following a 90-day period after hire. GSE Integrated will contribute up to 4% of an employee's gross annual income if the employee contributes the same amount or greater. Contributions over an annual period equaling less than 4% of total income will be matched dollar by dollar. Employees may elect to contribute up to the maximum amount allowed by federal law on an annual basis. Both traditional and ROTH 401k options are available for investment. The plan also allows for rollover from previous retirement plans into ours for ease of access.</p>
+            </div>
+        </section>
+
+        <!-- Section 7: Hiring & Separation -->
+        <section id="section-7">
+            <h2>Hiring & Separation</h2>
+        </section>
+
+        <!-- Section 7a: Onboarding New Hires -->
+        <section id="section-7a" class="subsection">
+            <h2 class="subsection-title">Onboarding New Hires</h2>
+            <div class="subsection-content">
+                <p>All employees, upon hire, will be required to complete forms regarding citizenship, medical history, tax information, etc. Background checks and Motor Vehicle Reports (MVRs) may be necessary as well depending on the position. Field employees may be required to undergo several weeks or more of training prior to being assigned a company vehicle.</p>
+                <p>All employees will be hired under a ninety-day probation period. During this time the employee should work diligently to assimilate into the necessary position, learn company values and workflows, and show their value as an asset to the company. New hires will have a meeting with their direct report and upper management at the end of the ninety-day period to discuss progress, future goals, and any changes that may need to be made to compensation, responsibilities, etc. Employees are ineligible for benefits during this time.</p>
+            </div>
+        </section>
+
+        <!-- Section 7b: Resignation & Termination -->
+        <section id="section-7b" class="subsection">
+            <h2 class="subsection-title">Resignation & Termination</h2>
+            <div class="subsection-content">
+                <p>Employees are requested to provide a two-week written notice of their intention to resign. Failure to comply with this request may result in an employee's denial of future re-employment.</p>
+                <p>Louisiana is an "at will" employment state and can terminate employment at any time for any reason, or no reason at all, if it is not based on discriminatory practices. Upon termination, employees will be responsible for returning any property belonging to GSE Integrated. This includes tools, vehicles, electronics, apparel, or any other unlisted items. Failure to return these items may result in paycheck deductions.</p>
+            </div>
+        </section>
+
+        <!-- Section 7c: Exit Interview -->
+        <section id="section-7c" class="subsection">
+            <h2 class="subsection-title">Exit Interview</h2>
+            <div class="subsection-content">
+                <p>For employees resigning from their position, GSE Integrated requests an exit interview with senior management. This is voluntary and is a chance for us to gain feedback you may not have felt comfortable sharing during your employment. We would like to know why you are leaving, your likes and dislikes regarding the company, and any suggestions you may have for future employees. All the information will be kept confidential and is simply for our benefit to help improve the company.</p>
+            </div>
+        </section>
+
+        <!-- Section 8: Attendance, Timekeeping, & Compensation -->
+        <section id="section-8">
+            <h2>Attendance, Timekeeping, & Compensation</h2>
+        </section>
+
+        <!-- Section 8a: Working Hours -->
+        <section id="section-8a" class="subsection">
+            <h2 class="subsection-title">Working Hours</h2>
+            <div class="subsection-content">
+            <p>GSE Integrated operates predominantly between 7:30 a.m. and 3:30 p.m. Monday through Friday, apart from company holidays. Office employees are expected to be present in person and ready to work during this period, unless they are obligated to visit a job site, meet with someone on behalf of the company, or are otherwise allowed by management to be absent. Additionally, if you need to leave work early, this should be reported to your direct manager as well.</p>
+            <p>Some positions may have additional responsibilities outside of these hours, in which case the appropriate adjustments to their schedule will be made.</p>
+            </div>
+        </section>
+
+        <!-- Section 8b: Employee Timesheets -->
+        <section id="section-8b" class="subsection">
+            <h2 class="subsection-title">Employee Timesheets</h2>
+            <div class="subsection-content">
+            
+            <h4>Office Employees (Hourly)</h4>
+            <p>Employees should clock in for the workday when arriving at the office. If the employee has non-working obligations outside of the office, they should clock out for the duration, and clock back in when they return to the office. If the office employee is temporarily working from home, they should be clocked in when they are working, available by phone, and have immediate access to their work computer – if this is not the case, the employee should clock out until such requirements are met.</p>
+            
+            <h4>Field Employees (Hourly)</h4>
+            <p>Field employees driving to the office before their first call should not clock in until they are at the shop. Shop time is to be used to restock for upcoming jobs and unload materials as needed.</p>
+            <p>Field employees driving straight to their first job should clock in when they arrive on-site. When technicians finish their last job for the day they should clock out. Any drive to the first or from the last call of the day exceeding 45 miles will be paid out at 2 minutes per mile for any excess over 45 miles; for example, a 75-mile drive for the first call of the day would pay for 30 miles, or 60 minutes. This does not apply to any "on-call" jobs where you would clock in when you leave home for the job and clock out when the job is finished.</p>
+            <p>It is the responsibility of the employee's direct supervisor to track these commutes – they will determine which routes qualify for additional pay, and they will provide this information to accounting. It is not necessary for you to change your timesheet in any way to receive this pay. Notifying your supervisor that a drive exceeded the 45-mile threshold is helpful in ensuring it is recorded.</p>
+            </div>
+        </section>
+
+        <!-- Section 8c: Lunch Policy -->
+        <section id="section-8c" class="subsection">
+            <h2 class="subsection-title">Lunch Policy</h2>
+            <div class="subsection-content">
+            <p>Any hourly employee taking lunch should contact their immediate supervisor so they are informed. They should clock out at the beginning of lunch and clock in when they begin working again. Lunch is an unpaid event.</p>
+            <p>Breastfeeding mothers, or employees with health-related nutritional needs (such as diabetes or hypoglycemia) will not be counted against for their additional break time.</p>
+            </div>
+        </section>
+
+        <!-- Section 8d: Overtime -->
+        <section id="section-8d" class="subsection">
+            <h2 class="subsection-title">Overtime</h2>
+            <div class="subsection-content">
+            <p>For hourly employees, during busy times, we may request you to work beyond your normal working hours. This time will be compensated in accordance with state and national laws. If you are seeking overtime work for additional compensation, or if you are unwilling to work overtime due to personal or other reasons, please keep an open line of communication with your manager so you can be considered.</p>
+            </div>
+        </section>
+
+        <!-- Section 8e: Unforeseen Absences -->
+        <section id="section-8e" class="subsection">
+            <h2 class="subsection-title">Unforeseen Absences</h2>
+            <div class="subsection-content">
+            <p>If you are unable to report to work one day, notify your direct manager as soon as possible. We understand unforeseen circumstances arise that may cause absence on short notice such as sickness or obligations to your children. In some cases, your manager may request verifiable proof of absence such as a doctor's note. Reasons such as waking up late, stopping on the way to work for personal reasons, traffic delays, or unapproved holidays will not be considered an excused absence.</p>
+            <p>Unexcused or unreported absences for more than three consecutive business days will be considered job abandonment.</p>
+            </div>
+        </section>
+
+        <!-- Section 8f: Severe Weather & Emergencies -->
+        <section id="section-8f" class="subsection">
+            <h2 class="subsection-title">Severe Weather & Emergencies</h2>
+            <div class="subsection-content">
+            <p>Inclement weather such as hurricanes or flooding, or other emergencies may affect the company's ability to open normally and may impede an employee's ability to report to work. The safety of our employees is of the utmost importance, and we do not intend to jeopardize this. During these situations, we will enter a protocol tailored to the emergency at hand. The company may close for part of a workday, or in the worst circumstances the company may close altogether for several days or more until conditions improve. Depending on your position, you may be asked to work remotely in a full or partial capacity, or to assume job responsibilities outside of your typical role.</p>
+            <p>In the event of such emergencies, employees are expected to keep an open line of communication with management. It is important for the company to know who is and is not available, and when they may be able to return to work and at what capacity.</p>
+            <p>During this time, benefits such as health insurance coverage will continue. Pay for employees will be dependent on whether they are able to work remotely or have other involvement for the benefit of the company.</p>
+            </div>
+        </section>
+
+        <!-- Section 8g: Remote Work -->
+        <section id="section-8g" class="subsection">
+            <h2 class="subsection-title">Remote Work</h2>
+            <div class="subsection-content">
+            <p>GSE Integrated operates primarily as an "on-site" company. Employees are expected to report to the office during business hours to receive their compensation. Working remotely is a privilege reserved for abnormal situations, and only if your job duties allow it. If you foresee the need to work remotely, you must contact your direct manager who will decide if this is allowed. It is never acceptable to miss working at the office without prior notice. Giving as much notice is recommended, and while it does not guarantee approval, it increases the likelihood that we will be able to accommodate you. Remote work is most likely to be granted for reasons such as inclement weather, emergencies, and personal health issues.</p>
+            <p>While working remotely, employees should continue their work seamlessly as if they were in the office setting. Punctual completion of job duties and availability to communicate with other employees, customers, and vendors is crucial.</p>
+            <p>In the situation where an employee is allowed to work remotely, it will be their responsibility to keep a record of the scope of their work during that time. They may be asked to present these items to management for review. If an employee is found to be abusing this remote work privilege, or if their work is subpar or incomplete, they may be suspended or banned from future remote work opportunities.</p>
+            </div>
+        </section>
+
+        <!-- Section 8h: Time-Off Requests -->
+        <section id="section-8h" class="subsection">
+            <h2 class="subsection-title">Time-Off Requests</h2>
+            <div class="subsection-content">
+            <p>When an employee plans to miss work, a time-off request form should be filled out and submitted to management. Keep in mind this is a request and is subject to approval or denial. Employees may be denied if a request for the same time has already been approved for another employee in their department. Forms should be filled out for paid time off (PTO), unpaid leave, and bereavement pay. It is encouraged to complete these forms and submit them to management with as much notice as possible, as this will increase the chances of approval. The form used to submit time-off requests will not allow you to request dates less than a week away. If you are trying to request off with this minimal notice, you will need to contact your supervisor directly.</p>
+            </div>
+        </section>
+
+        <!-- Section 8i: Payroll -->
+        <section id="section-8i" class="subsection">
+            <h2 class="subsection-title">Payroll</h2>
+            <div class="subsection-content">
+            <p>Payroll is processed by the accounting department weekly and paid out at the end of the week on Friday. Each pay period runs from Sunday through Saturday. It is paid by direct deposit, and a virtual pay stub is uploaded into QuickBooks, with a reminder e-mail sent to your contact on file. We encourage employees to review this on a weekly basis to ensure their pay is correct. If there are any discrepancies, please contact the accounting department immediately.</p>
+            <p>If changes need to be made to your paycheck such as tax withholding, 401k contributions, or vacation usage, they need to be submitted as early in the week as possible. Most employees should report this directly to their supervisor – managers can use the accounting form workflow to notify the accounting department. Requests made too late in the week run the risk of being pushed to the following week's paycheck.</p>
+            </div>
+        </section>
+
+        <!-- Section 9: Human Resources -->
+        <section id="section-9">
+            <h2>Human Resources</h2>
+        </section>
+
+        <!-- Section 9a: Employee Conduct Scorecard -->
+        <section id="section-9a" class="subsection">
+            <h2 class="subsection-title">Employee Conduct Scorecard</h2>
+            <div class="subsection-content">
+            
+            <h4>Scorecard Breakdown</h4>
+            <p>We are committed to creating a safe, respectful, and productive environment for all employees. To ensure the success of our team and to maintain a high standard of professionalism, we have implemented a scorecard system that evaluates key aspects of employee behavior. This system allows us to fairly measure employee conduct across several areas. By applying the same criteria to everyone, we aim to provide a consistent process that encourages accountability, personal growth, and success.</p>
+            <p>The scorecard focuses on five critical areas: Driving Safety, Work Attendance, Respect and Professionalism, Insubordination, and Negligence. Each of these categories plays a vital role in our company's operations and the safety and wellbeing of our employees.</p>
+            
+            <h4>Driving Safety</h4>
+            <p><strong>Description:</strong> Employee safety is paramount. Any violations related to unsafe driving practices or exceeding speed limits while operating company vehicles will result in points being added to the employee's score.</p>
+            <p><strong>Point Allocation:</strong></p>
+            <ul>
+                <li>1 point for failing to adhere to speed limits or traffic regulations on the job.</li>
+                <li>3 points for minor driving violations (e.g., improper vehicle maintenance, severe instances of speeding).</li>
+                <li>5 points for serious driving violations (e.g., Reckless driving, accidents caused by negligence, inappropriate actions towards other drivers).</li>
+            </ul>
+            
+            <h4>Work Attendance</h4>
+            <p><strong>Description:</strong> Consistent attendance is crucial for maintaining workflows and meeting deadlines. Unscheduled absences, tardiness, or leaving early without proper authorization disrupt the team's productivity.</p>
+            <p><strong>Point Allocation:</strong></p>
+            <ul>
+                <li>1 point for arriving to work after your scheduled start time without prior approval.</li>
+                <li>3 points for arriving to work excessively late without approval, unavailability during the workday, improper use of the time clock or failure to work during "clocked-in" hours.</li>
+                <li>5 points for "No call, no shows."</li>
+            </ul>
+            
+            <h4>Respect and Professionalism</h4>
+            <p><strong>Description:</strong> We expect all employees to treat others with respect and maintain a professional demeanor in all situations. This includes interactions with co-workers, supervisors, vendors, and customers.</p>
+            <p><strong>Point Allocation:</strong></p>
+            <ul>
+                <li>1 point for minor infractions such as consistently unprofessional behavior or minor disputes with colleagues.</li>
+                <li>3 points for inappropriate behavior or language that undermines team morale or professionalism.</li>
+                <li>5 points for incidents involving harassment, discrimination, or behavior that severely disrupts the work environment.</li>
+            </ul>
+            
+            <h4>Insubordination</h4>
+            <p><strong>Description:</strong> Employees are expected to follow instructions and respect company policies. Any actions demonstrating insubordination, failure to follow direct instructions, or disrespect towards reporting managers will result in consequences.</p>
+            <p><strong>Point Allocation:</strong></p>
+            <ul>
+                <li>1 point for occasional failure to comply with minor instructions or a single instance.</li>
+                <li>3 points for repeated disregard of instructions or refusal to comply with company policies.</li>
+                <li>5 points for failure to comply with a direct request from a supervisor or manager.</li>
+            </ul>
+            
+            <h4>Negligence</h4>
+            <p><strong>Description:</strong> Employees are expected to be vigilant, attentive, and responsible in performing their duties. Negligence includes any failure to attend to important tasks, damage caused by inattention to work, careless injury to self or others, or accidents that occur due to distracted driving or careless actions.</p>
+            <p><strong>Point Allocation:</strong></p>
+            <ul>
+                <li>1 point for minor negligence, such as overlooking small but important details that affect work quality or safety.</li>
+                <li>3 points for moderate negligence, such as errors that lead to production delays, minor damage, or failure to report critical issues in a timely manner.</li>
+                <li>5 points for major incidents of negligence, such as significant property damage, major safety violations, or vehicle accidents caused by distracted driving.</li>
+            </ul>
+            
+            <h3>Point System & Termination Criteria</h3>
+            <p>An employee who accumulates 15 points in any category or through a combination of categories within the calendar year will face termination. This policy ensures that we uphold high standards of safety, professionalism, and operational efficiency.</p>
+            <p>However, it is important to note that GSE Integrated reserves the right, in extreme cases, to bypass the point accrual process and immediately terminate an employee for any reason, particularly in situations involving severe misconduct or safety violations. This may include, but is not limited to, incidents of violence, theft, gross negligence, or any behavior that puts the safety or wellbeing of others at risk. Such actions will be addressed immediately and without the need to follow the point system.</p>
+            <p>At the end of each calendar year, all points accumulated by an employee will be reset to zero. This allows employees the opportunity to start fresh and work towards improving their performance and behavior in the new year. Records will be kept, however, of previously documented point allocations.</p>
+            <p>We believe that this system will help maintain a positive, respectful, and productive work environment for all employees at GSE Integrated. Our goal is to foster accountability, personal growth, and a commitment to excellence. By adhering to these standards, we can ensure both individual and collective success.</p>
+            <p>If you have any questions or need clarification regarding this policy, please contact your direct report.</p>
+            </div>
+        </section>
+
+        <!-- Section 9b: HR Policies (continuation of HR section) -->
+        <div class="hr-policies">
+            <div class="hr-content">
+            
+            <h3>Performance Reviews</h3>
+            <p>All employees will be subject to, at minimum, a yearly performance review with their direct reporting manager and senior management. The scope of these meetings will vary based on job position, but will review items such as job performance, attendance, attitude, past and future goals, promotions, pay increases, and benefit adjustments. Increases in pay are never guaranteed, but we encourage managers to recommend rewards for team members who are excelling in their job position. There will not be any forced ranking or comparison between employees as our goal is to help everyone improve and develop their careers with GSE Integrated.</p>
+            <p>Employees are encouraged to interact with management on a regular basis outside of these performance reviews to set goals, receive and give feedback, and ensure they are in good standing with their work.</p>
+            
+            <h3>Promotional Eligibility</h3>
+            <p>GSE Integrated is committed to the ongoing development of our employees. With time, commitment, and a high level of work quality, promotions and growth within the company are always possible. It is our goal whenever possible to promote people from within the company as opposed to outside hiring. Working with management to create a road map of skills that can be gained or goals to be met to qualify for a promotion is always encouraged.</p>
+            
+            <h3>Open-Door Policy</h3>
+            <p>We want to foster an environment where employees know their voice will be heard. Employees should feel comfortable asking for feedback, expressing concerns about their jobs or that of others, seeking resolutions to a dispute, suggesting changes, or discussing other personal topics. Your direct reporting managers should be approached first, but if necessary upper management or ownership will become involved in the event an initial meeting does not resolve the matter in question. In the case of harassment or complaints against your direct manager, or if prior attempts to reach out to your manager have been unsuccessful, you should report to senior management.</p>
+            <p>If requesting a meeting with management, it is suggested as a courtesy (when possible) to ask in advance to meet with them so they can give you the appropriate attention.</p>
+            
+            <h3>Grievance Procedures</h3>
+            <p>Misunderstandings and conflicts can arise in any organization. To ensure effective working relationships between all employees, it is important that these matters are resolved quickly before they become more widespread or affect company culture or productivity. Employees are encouraged to resolve minor incidents without intervention from others – this can often be done through non-confrontational conversations. If a situation is ongoing or unable to be resolved easily, you should follow the three-step process listed below:</p>
+            <p><strong>Step One:</strong> Discuss the issue with your direct reporting manager. They may consult with other management staff if necessary to help resolve the problem or escalate the issue in serious situations. If you don't believe a conversation with this person is appropriate, or that a conversation was unproductive, proceed to step two.</p>
+            <p><strong>Step Two:</strong> Request a meeting with the Integrator (found on the company organizational chart). They will consult with your direct reporting manager if necessary and may also escalate an issue as needed. If you feel that the meeting was unproductive and problem is unresolved, proceed to step three.</p>
+            <p><strong>Step Three:</strong> Request a meeting with the Visionary (found on the company organizational chart). The Visionary will investigate the problem and make a final decision. All subordinate management will be informed of the outcome, and business should proceed under those guidelines.</p>
+            <p>GSE Integrated managers and employees will not retaliate against another employee for utilizing this procedure; however, the company is not required to consider or review frivolous complaints or those submitted in bad faith. Once an issue has been reviewed and a response is not deemed necessary, there is no obligation to review additional complaints on the same subject.</p>
+            </div>
+        </div>
+
+        <!-- Section 10: Employee & Customer Relations -->
+        <section id="section-10" class="subsection">
+            <h2 class="subsection-title">Employee & Customer Relations</h2>
+            <div class="subsection-content">
+            <p>Employees must treat customers, and all persons associated with our business, with respect always. Communicate with them clearly and honestly. Provide accurate information about our products and services - avoid making false promises. Personal biases, offensive language, or other unprofessional behavior is strictly prohibited. Treat everyone equally regardless of race, gender, age, religion, etc. Avoid forming close personal or romantic relationships with customers.</p>
+            <p>If customers have complaints or criticism, receive them calmly – never raise your voice or engage argumentatively. Follow up with your direct report to ensure the situation is handled promptly and with care.</p>
+            </div>
+        </section>
+
+        <!-- Section 11: Outside Employment -->
+        <section id="section-11" class="subsection">
+            <h2 class="subsection-title">Outside Employment</h2>
+            <div class="subsection-content">
+            <p>Individuals employed by GSE Integrated may hold outside jobs if they meet the performance standards of their job with GSE. If it is determined that an employee's outside work is interfering with their ability to perform their job duties at GSE Integrated, they may be asked to terminate the outside employment. This could include scheduled hours from jobs overlapping, or the demands of outside employment being so great that they impede the employee from completing their job duties to an acceptable standard.</p>
+            </div>
+        </section>
+
+        <!-- Section 12: Equal Opportunity Employment -->
+        <section id="section-12" class="subsection">
+            <h2 class="subsection-title">Equal Opportunity Employment</h2>
+            <div class="subsection-content">
+            <p>GSE Integrated provides equal employment opportunities to all employees and applicants for employment and prohibits discrimination and harassment of any type without regard to race, color, religion, age, sex, national origin, disability status, genetics, protected veteran status, sexual orientation, gender identity or expression, or any other characteristic protected by federal, state or local laws. This policy applies to all terms and conditions of employment.</p>
+            </div>
+        </section>
+
+        <!-- Section 13: Harassment & Discrimination -->
+        <section id="section-13" class="subsection">
+            <h2 class="subsection-title">Harassment & Discrimination</h2>
+            <div class="subsection-content">
+            <p>Our anti-discrimination and anti-harassment policies go together. We will not tolerate any kind of discrimination. Employees who harass their colleagues will go through our disciplinary process and we may reprimand, demote or terminate them depending on the severity of their offense.</p>
+            <p>We will not be lenient in cases of assault, sexual harassment or workplace violence, whether physical or psychological. We will terminate employees who behave in this manner immediately.</p>
+            <p>If you are the victim of discriminatory behavior (or if you suspect that others are being discriminated against), please talk to senior management as soon as possible. They are responsible for hearing your claim, investigating the issue and determining punishment.</p>
+            <p>All claims will be investigated discreetly to protect the identity of the disclosing employee. If you have ideas on how we can ensure equality and the workplace and prevent discrimination, we are always happy to hear them.</p>
+            </div>
+        </section>
+
+        <!-- Section 14: Workplace Health & Safety -->
+        <section id="section-14" class="subsection">
+            <h2 class="subsection-title">Workplace Health & Safety</h2>
+            <div class="subsection-content">
+            <p>GSE Integrated is committed to ensuring both the physical and mental health of all its employees in the workplace, both in the office and in the field. This includes protecting against unsafe air quality, harmfully loud noises, toxic or otherwise dangerous materials, etc. We are taking measures to provide employees with the proper skills and protective equipment to avoid workplace incidents or unhealthy conditions.</p>
+            <p>If you are aware of any situation posing a health threat to you or any other employee, please contact management immediately. Furthermore, if you need personal protective equipment (PPE) or any training such as how to operate power tools, how to safely navigate heights or attics, etc., please bring it to our attention.</p>
+            <p>Personal illness is a concern for the health and safety of the company. If you are sick, and unsure of the cause, please consult a medical professional. We encourage all employees to ensure that they are non-contagious and pose no threat to other employees before returning to the workplace. We do not want to create an environment where employees feel they must come to work regardless of their condition.</p>
+            <p>In an instance where an unsafe environment is caused by another person (such as a threatening demeanor), whether customer, vendor, or other employee, we ask that you do your best to avoid engagement with them. If leaving the area is an option, do so. If necessary, reach out to law enforcement and then contact management so we can assist you.</p>
+            <p>GSE Integrated requests emergency contact information from all employees in case of an emergency. Please keep this contact we have on file for you updated, as well as any pertinent health related information that may be necessary to relay to medical professionals in the event you are injured or incapacitated. Again, we want to take every possible step to keep you safe.</p>
+            </div>
+        </section>
+
+        <!-- Section 15: Company Policies -->
+        <section id="section-15">
+            <h2>Company Policies</h2>
+        </section>
+
+        <!-- Section 15a: Dress Code -->
+        <section id="section-15a" class="subsection">
+            <h2 class="subsection-title">Dress Code</h2>
+            <div class="subsection-content">
+            <p>GSE Integrated uniform shirts are provided to every employee upon hiring or at the end of their probation period. GSE employees should be neatly dressed in a uniform shirt with closed-toe footwear. Pants or shorts should be neutral colored (black, grey, or khaki). Employees choosing to wear a hat should wear only GSE Integrated logo hats.</p>
+            <p>This dress code includes (but is not limited to) times when an employee is operating a company vehicle, entering a customer's home, and meeting with builders, vendors, or customers in the office. Employees should maintain proper hygiene with a presentable appearance. Uniform violations will be tracked and considered during employee performance reviews.</p>
+            </div>
+        </section>
+
+        <!-- Section 15b: Vehicle Policy -->
+        <section id="section-15b" class="subsection">
+            <h2 class="subsection-title">Vehicle Policy</h2>
+            <div class="subsection-content">
+            
+            <h4>Vehicle Usage</h4>
+            <p>Company vehicles are provided to authorized employees to support their business activities. These vehicles are for traveling to and from job sites and the GSE office. In some cases, employees may be permitted to take the company vehicle home and use it to commute to and from their home and GSE office and/or jobsites. They are not to be used for personal errands, or any other commitments outside of business hours. Furthermore, the vehicles are exclusively for company employees – non-employees should never operate or ride in company vehicles.</p>
+            <p>To use a company vehicle, employees must maintain an active driver's license and pass a Motor Vehicle Record (MVR). If for any reason, an employee's driver's license is revoked, suspended, or restricted, it is mandatory that management be notified immediately.</p>
+            <p>While operating a company vehicle, employees should observe the following standards:</p>
+            <ul>
+                <li>Obey all motor vehicle laws under all circumstances</li>
+                <li>Seatbelt should be always worn</li>
+                <li>Operate the vehicle in a safe and courteous manner – remember you are driving a GSE billboard, and all activity is a direct reflection of our company</li>
+                <li>Drive defensively to prevent injuries and property damage</li>
+                <li>Avoid texting while driving (or use of other devices that would lead to distractions) – only "hands-free" calling is allowed.</li>
+            </ul>
+            
+            <h4>Vehicle Inspections</h4>
+            <p>All employees with a company vehicle will be subjected to monthly vehicle inspections. This will ensure that documentation is up to date, GSE tools and equipment are in good condition and safely secured, and that the vehicle is well maintained and is free of damage or trash. If an employee fails more than one inspection in a four-month period, they will be required to leave their vehicle at the shop every day, and the commute to and from work must be done in their personal vehicle. Repeated failures, or failed inspections of a severe nature, may result in further consequences up to and including termination of employment. These situations will be taken on a case-by-case basis by management and will also be considered during annual employee reviews.</p>
+            <p>With these inspections in mind, it is the employee's responsibility to keep their vehicle in exceptional condition. This includes regular cleaning of both the inside and outside, as well as inspecting the vehicle periodically to ensure documentation is up to date and that no damage has occurred. Resources are given to the employees to submit requests when oil changes or other maintenance items are needed – management will schedule these visits with the appropriate automative shops but tracking when these visits are due falls on the employee. Please refer to the vehicle inspection checklist to ensure you are aware of all necessary maintenance items for which you are responsible.</p>
+            <p>The privilege of driving a company vehicle may be withdrawn for any of the following reasons:</p>
+            <ul>
+                <li>Abuse or misuse of the vehicle or failure to comply with the rules and procedures stipulated in this company policy.</li>
+                <li>A driving record which becomes deficient while operating a company vehicle.</li>
+                <li>Conviction or a guilty plea to driving a company vehicle under the influence of alcohol or an illegal controlled substance.</li>
+                <li>If an eligible driver has a long-term disability, his/her assigned vehicle could be reassigned to another driver. Upon recovery from the disability and return to work, the driver may be assigned another vehicle.</li>
+            </ul>
+            <p>Company vehicles should not be used to transport flammable items, firearms, or other hazardous materials. Smoking is not allowed in company vehicles.</p>
+            <p>No modifications should be made to a company vehicle, aesthetically or mechanically, without prior consent from management.</p>
+            
+            <h4>Camera Policy</h4>
+            <p>All company vehicles come equipped with both forward and rear facing dash cams. These are in place to protect the company from liability regarding accidents. The cameras are a non-negotiable part of our insurance policy. Any employee removing, repositioning, covering, or otherwise tampering with any vehicle's camera will be terminated immediately.</p>
+            
+            <h4>Fuel Cards</h4>
+            <p>All employees using a company car or truck will be given a fleet card. This is used only for refueling company vehicles and will require information such as the odometer reading to purchase gas. Any spending outside of fuel must be approved by your direct manager. If this card is ever lost or stolen, or if fraud is suspected, it should be reported immediately to management.</p>
+            
+            <h4>Traffic Violations</h4>
+            <p>In the event an employee is ticketed by law enforcement in a company vehicle, they will be responsible for the cost. If the cause is due to impairment (drugs or alcohol), or general negligence (for example, texting while driving), the employee may be held responsible for damages and may be subject to paycheck deductions or further consequences.</p>
+            
+            <h4>Vehicle Accidents</h4>
+            <p>If you are involved in an accident, theft, or damage to your vehicle, it is necessary to follow the procedure outlined below:</p>
+            <ul>
+                <li>If anyone is hurt, call for medical assistance.</li>
+                <li>Call RISCOM immediately at 866-265-1557. Let them know you are with GSE Integrated and that an accident occurred – they will dispatch someone to the scene.</li>
+                <li>Contact management as soon as you are able.</li>
+                <li>Immediately following an accident, stop and investigate what damage might have occurred to the vehicle.</li>
+                <li>Get the names and addresses of the owner(s) and driver(s) involved, license number and registration number of the car(s) involved and the names and addresses of any passengers in the vehicles connected with the accident.</li>
+                <li>Get the name of the other party's insurance company and insurance policy number.</li>
+                <li>Get the names and addresses of witnesses, if any.</li>
+                <li>If law enforcement officers are present at the scene, note their names, badge and precinct numbers. If no police officers are present, it may be necessary to call one to the scene – if you are unsure if the police should be called, contact management.</li>
+                <li>Express no opinion as to who was at fault. Give no information except as required by law enforcement officers.</li>
+                <li>Sign no statements for anyone except an identified representative of GSE Integrated</li>
+                <li>Contact GSE management as soon as you can regarding this incident, while you are still on-site of the accident</li>
+                <li>If any demand, claims or summons is served to an employee involved in an accident asserting liability against the employee, contact management immediately.</li>
+                <li>If the collision involves an unattended vehicle, you must attempt to notify the owner. If that is not directly possible, attach a note to the vehicle asking the owner to contact you. Contact management before leaving the scene.</li>
+            </ul>
+            </div>
+        </section>
+
+        <!-- Section 15c: Technician Tool Policy -->
+        <section id="section-15c" class="subsection">
+            <h2 class="subsection-title">Technician Tool Policy</h2>
+            <div class="subsection-content">
+            <p><strong>Hand Tools:</strong> Field technicians are expected to provide and maintain their own kit of basic hand tools. Every technician is expected to have a hammer (less than 20 oz), 25' tape measure, side cutting pliers (dykes), Klein's crimping pliers, Klein's 11-in-1 screwdriver, large flathead screwdriver, razor knife, plug tester, and wire strippers. Management and maintenance of these items is up to the individual employee, and they will bear all responsibility for the upkeep and replacement of said tools.</p>
+            <p><strong>Power Tools:</strong> GSE Integrated will provide power tools for field employees. These include cordless drills, impacts, reciprocating saw (Sawzall), and a multi-tool. Tool allocations may vary between field technicians based on job description and experience. These items will be marked and tracked as they are checked out to an employee and their vehicle. Checks will be conducted periodically to evaluate the condition of the tools and ensure they are still accounted for and in working order. In the case where tools are lost or damaged/broken due to negligence, the employee will be held liable. GSE Integrated will assume liability for power tools needing replacement due to normal "wear and tear" on the items. Any damage to a tool should be reported and documented immediately.</p>
+            <p>GSE Integrated maintains a stock of power and accessory tools at the main warehouse/office. These are available for all field employees as needed and should only be distributed by projects managers or the warehouse manager. Any tool that is removed from or returned to GSE should be documented in the Monday.com board titled Tool List.</p>
+            <p>For some field positions, there may be power tools that are required frequently enough that it is warranted to permanently keep it on the work vehicle. These will still be checked out from the tool stock, on a permanent basis, until the tool requires replacement, job duties change in a way that the tool is no longer required, or termination of employment.</p>
+            <p>If there is a power tool which the company does not currently stock, but an employee feels it may be useful to keep, please make a request through your direct manager. They will review this with the appropriate personnel and the tool may be purchased and added to our stock.</p>
+            <p>If employment is terminated for any reason, employees are responsible for returning any tools assigned to them. Failure to do so may result in withholding from the employee's paycheck.</p>
+            </div>
+        </section>
+
+        <!-- Section 15d: Employee Damage Policy -->
+        <section id="section-15d" class="subsection">
+            <h2 class="subsection-title">Employee Damage Policy</h2>
+            <div class="subsection-content">
+            <p>In some instances, GSE Integrated may hold an employee liable for damage to company property, or to a customer or vendor's property. If damage is caused in any situation, it should be reported immediately to your manager. Your manager and admin will determine the scope and cause of the damage. If it is determined the employee caused damage due to an unavoidable accident, then GSE will cover the costs. If the manager/admin determines the damage was due to negligence, the cost may fall on the employee. This will be up to the manager/admin's discretion. If the employee fails to report damages to one's manager, and it is later discovered, negligence will automatically be assumed, and employees may be held liable.</p>
+            <p>All incidents should be reported by managers immediately via the provided JotForm link. All situations should be reviewed with the accounting department before moving forward with any resolution with the employee, customer, or vendor. Concessions, refunds, and reimbursements should not be given until this review process is completed.</p>
+            </div>
+        </section>
+
+        <!-- Section 15e: Company Expense Accounts -->
+        <section id="section-15e" class="subsection">
+            <h2 class="subsection-title">Company Expense Accounts</h2>
+            <div class="subsection-content">
+            <p>Some positions may require employees to carry a company credit card or have access to other spending accounts to make purchases. Receipts of all expenses should be kept by the employee using them, and they should be turned into accounting for record keeping. These are strictly monitored and should be used only as needed for relevant company work – failure to do so may result in consequential action up to termination. If a card is lost or stolen, or if there is reason to suspect our accounts have been compromised by another party, the incident should be reported to management immediately.</p>
+            </div>
+        </section>
+
+        <!-- Section 15f: Reimbursement of Expenses -->
+        <section id="section-15f" class="subsection">
+            <h2 class="subsection-title">Reimbursement of Expenses</h2>
+            <div class="subsection-content">
+            <p>Employees may sometimes need materials or tools to complete a job without a company card or spend account available. If approved by management, the employee may purchase the items themselves. Reimbursement from GSE Integrated will be given when a receipt is received for the purchase, and verification from management of the approved purchase.</p>
+            </div>
+        </section>
+
+        <!-- Section 15g: Non-Compete & Non-Solicitation -->
+        <section id="section-15g" class="subsection">
+            <h2 class="subsection-title">Non-Compete & Non-Solicitation</h2>
+            <div class="subsection-content">
+            <p>Every employee, upon hiring, will be required to sign both a non-compete and non-solicitation form. Employees are not permitted to disclose any of GSE Integrated's confidential information to any party without the consent of ownership. Employees also may not solicit GSE customers for any services offered by the company to be performed outside of company jobs – this applies for a period of two years following employment. Employees violating this agreement will be subject to legal action. Please refer to the signed agreement for more detailed information regarding this policy.</p>
+            </div>
+        </section>
+
+        <!-- Section 15h: Substance Abuse -->
+        <section id="section-15h" class="subsection">
+            <h2 class="subsection-title">Substance Abuse</h2>
+            <div class="subsection-content">
+            <p>Substance abuse refers to the use of psychoactive drugs, including alcohol. Personal choices made outside of the workplace are the responsibility of the employee; however, illicit or illegal substance use within the workplace, in any capacity, is strictly forbidden. GSE Integrated maintains a zero-tolerance policy for use of these substances while working. This also applies to substances consumed just prior to work.</p>
+            <p>If an employee is involved in an accident while operating a company vehicle, or if it is suspected an employee is using these substances during work, they will be asked to submit to a drug test.</p>
+            <p>If you are struggling with addiction, and need help or support, management will help you find available resources. In the spirit of caring for our employees, it is important to us that they feel they can approach management for help. Anonymity in these matters is always guaranteed.</p>
+            <p>If you would prefer not to speak with anyone within the company, please call the addiction hotline at 1(800)662-4357.</p>
+            </div>
+        </section>
+
+        <!-- Section 15i: Weapons and Firearms -->
+        <section id="section-15i" class="subsection">
+            <h2 class="subsection-title">Weapons and Firearms</h2>
+            <div class="subsection-content">
+            <p>GSE Integrated enforces a strict no weapon, no firearm policy. This includes guns, large knives, explosives, tasers, or other items intended for bodily harm. This ban includes all company work areas, including but not limited to offices, warehouses, storage areas, job sites, and company vehicles.</p>
+            <p>This policy does not apply to law enforcement officers or other individuals authorized by law to carry weapons, provided they are acting within the scope of their official duties. Also, it does not apply to weapons or firearms stored securely in accordance with state or federal laws, such as those stored in private vehicles.</p>
+            <p>Any individual found in possession of said items on company property will be required to remove the item immediately and may face consequences up to termination. Law enforcement may be notified in extreme cases.</p>
+            <p>Employees who observe violations of this policy or have concerns about the presence of weapons on company grounds are encouraged to immediately report the incident to their direct manager.</p>
+            </div>
+        </section>
+
+        <!-- Section 15j: Pet Policy -->
+        <section id="section-15j" class="subsection">
+            <h2 class="subsection-title">Pet Policy</h2>
+            <div class="subsection-content">
+            <p>Pets are prohibited in the office. In case of an emergency or specific reason where an employee may need to bring a pet to work, it must be approved in advance by senior management. This request has no guarantee of approval. In the case where another employee has an allergy or other issue with the pet in question, we are willing to accommodate them.</p>
+            </div>
+        </section>
+
+        <!-- Section 15k: Technology & Data Security -->
+        <section id="section-15k" class="subsection">
+            <h2 class="subsection-title">Technology & Data Security</h2>
+            <div class="subsection-content">
+            <p>All GSE Integrated employees have some access to secure or confidential company information. It is imperative that precautions are taken to ensure these items stay within the company, and that all employees remain vigilant to phishing or hacking attempts.</p>
+            <p>Using the following methods can help prevent data breaches:</p>
+            <ul>
+                <li>Use strong, unique passwords with multi-factor authentication</li>
+                <li>Keep devices and software updated</li>
+                <li>Think before clicking – verify unknown e-mail addresses</li>
+                <li>Hover over links before clicking to see the entire URL</li>
+                <li>Just because the sender knows your name, or title, or has company information, does not mean they work with us.</li>
+                <li>Report all suspicious e-mails or activities immediately</li>
+                <li>Store and share data securely and discreetly</li>
+                <li>Ensure devices such as computers, tablets, and phones, are locked out and turned off when not in use</li>
+                <li>Store hard copies of confidential information in locked areas on company premises</li>
+            </ul>
+            </div>
+        </section>
+
+        <!-- Section 15l: Internet Acceptable Use Policy -->
+        <section id="section-15l" class="subsection">
+            <h2 class="subsection-title">Internet Acceptable Use Policy</h2>
+            <div class="subsection-content">
+            <p>GSE Integrated provides internet access to all employees as needed to complete their job duties. No use of the Internet should conflict with the primary purpose of those duties, or GSE Integrated's ethical or legal responsibilities. Each user is personally responsible to ensure this is followed. GSE Integrated may monitor usage of the Internet by employees, including reviewing a list of sites accessed. No individual should have an expectation of privacy in terms of their internet usage on company devices.</p>
+            <p>Internet usage is strictly forbidden for any of the following activities:</p>
+            <ul>
+                <li>Accessing, creating, or transmitting materials that is derogatory, defamatory, obscene, or offensive, such as slurs, epithets, or anything that may be construed as harassment or disparagement based on race, color, national origin, sex, sexual orientation, age, disability, medical condition, marital status, or religious or political beliefs.</li>
+                <li>Accessing, sending, receiving, or soliciting sexually-oriented messages or images.</li>
+                <li>Downloading or dissemination of copyrighted material with permission from the publisher</li>
+                <li>Participation in chain letters, pyramid schemes, or other illegal schemes</li>
+                <li>Many sites or services on the Internet require a usage or access fee – requests for approval must be submitted to management prior to purchase.</li>
+            </ul>
+            </div>
+        </section>
+
+        <!-- Section 15m: Social Media Policy -->
+        <section id="section-15m" class="subsection">
+            <h2 class="subsection-title">Social Media Policy</h2>
+            <div class="subsection-content">
+            <p>We understand that social media is a big part of life for many people. GSE Integrated operates social media platforms to advertise to the public to drive business. While we will not dictate your personal accounts, understand you represent our company, and as a known employee your words are a direct reflection of our business. We expect you to be careful and thoughtful regarding your posts on social media, that you avoid posting anything which could be perceived as derogatory or damaging to the reputation of GSE Integrated, and that you will avoid posting confidential company information and intellectual property. Failure to do so may result in consequences up to termination of employment.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.querySelector('.menu-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('mobile-open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    sidebar.classList.remove('mobile-open');
+                }
+            }
+        });
+
+        // Collapsible navigation
+        document.querySelectorAll('.parent-link').forEach(parentLink => {
+            parentLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                const parentItem = parentLink.closest('.nav-parent');
+                
+                // Toggle the expanded state
+                parentItem.classList.toggle('expanded');
+                
+                // If clicking on the parent link itself (not to navigate), don't scroll
+                // But if the parent is already expanded and they click it, navigate to that section
+                if (parentItem.classList.contains('expanded')) {
+                    // Just expanded, don't navigate yet
+                } else {
+                    // Collapsed, so they probably want to navigate
+                    const targetId = parentLink.getAttribute('href');
+                    const targetSection = document.querySelector(targetId);
+                    if (targetSection) {
+                        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        if (window.innerWidth <= 768) {
+                            sidebar.classList.remove('mobile-open');
+                        }
+                    }
+                }
+            });
+        });
+
+        // Smooth scrolling for navigation links (non-parent links)
+        document.querySelectorAll('.nav-link:not(.parent-link)').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                    // Close mobile menu after clicking
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('mobile-open');
+                    }
+                }
+            });
+        });
+
+        // Highlight active section in navigation
+        const sections = document.querySelectorAll('section[id^="section-"]');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                    
+                    // Auto-expand parent if a child is active
+                    const parentItem = link.closest('.nav-parent');
+                    if (parentItem && !parentItem.classList.contains('expanded')) {
+                        parentItem.classList.add('expanded');
+                    }
+                }
+            });
+        });
+
+        // Auto-expand sections on page load if one of their children is in view
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.nav-parent').forEach(parent => {
+                parent.classList.add('expanded');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -48,11 +48,6 @@ export default function AuditLog() {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Audit Log</h1>
-        <p className="text-gray-600 mt-1">System activity and user actions</p>
-      </div>
-
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-4 mb-6">
         <h2 className="text-lg font-semibold mb-4">Filters</h2>

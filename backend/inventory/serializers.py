@@ -22,10 +22,10 @@ class UnitOfMeasureSerializer(serializers.ModelSerializer):
 
 class ItemSerializer(serializers.ModelSerializer):
     """Serializer for Item model - matches ERD field names"""
-    
+
     # Include UOM details
     default_uom_code = serializers.CharField(source='default_uom.uom_code', read_only=True)
-    
+
     class Meta:
         model = Item
         fields = [
@@ -34,6 +34,11 @@ class ItemSerializer(serializers.ModelSerializer):
             'item_name',
             'description',
             'category',
+            'subcategory',
+            'subcategory2',
+            'subcategory3',
+            'manufacturer',
+            'manufacturer_part_no',
             'default_uom',
             'default_uom_code',
         ]
